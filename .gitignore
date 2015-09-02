@@ -1,0 +1,9 @@
+.DS_Store
+profile
+
+# X Code
+*/build/
+*.so
+*.dSYM
+*.pbxuser
+*.mode1v3

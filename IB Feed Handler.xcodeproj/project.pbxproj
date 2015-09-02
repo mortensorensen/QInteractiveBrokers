@@ -1,0 +1,316 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		5A6CFCE71A7DF596007C4802 /* Makefile in Sources */ = {isa = PBXBuildFile; fileRef = 5A6CFCCF1A7DF367007C4802 /* Makefile */; };
+		5A6CFCE81A7DF599007C4802 /* feed_handler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5A6CFCD01A7DF367007C4802 /* feed_handler.cpp */; };
+		5A6CFCE91A7DF59C007C4802 /* feed_handler.h in Headers */ = {isa = PBXBuildFile; fileRef = 5A6CFCD11A7DF367007C4802 /* feed_handler.h */; };
+		5A6CFCEA1A7DF59F007C4802 /* ib_wrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = 5A6CFCD21A7DF367007C4802 /* ib_wrapper.h */; };
+		5A6CFCEB1A7DF5A2007C4802 /* k.h in Headers */ = {isa = PBXBuildFile; fileRef = 5A6CFCD31A7DF367007C4802 /* k.h */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		5A6CFCCF1A7DF367007C4802 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
+		5A6CFCD01A7DF367007C4802 /* feed_handler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = feed_handler.cpp; sourceTree = "<group>"; };
+		5A6CFCD11A7DF367007C4802 /* feed_handler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = feed_handler.h; sourceTree = "<group>"; };
+		5A6CFCD21A7DF367007C4802 /* ib_wrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ib_wrapper.h; sourceTree = "<group>"; };
+		5A6CFCD31A7DF367007C4802 /* k.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = k.h; sourceTree = "<group>"; };
+		5A6CFCDC1A7DF583007C4802 /* libIB Feed Handler Doc.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = "libIB Feed Handler Doc.dylib"; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		5A6CFCD91A7DF583007C4802 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		5A6CFC901A7DEFD0007C4802 = {
+			isa = PBXGroup;
+			children = (
+				5A6CFCA01A7DF1E8007C4802 /* Products */,
+				5A6CFCCF1A7DF367007C4802 /* Makefile */,
+				5A6CFCD01A7DF367007C4802 /* feed_handler.cpp */,
+				5A6CFCD11A7DF367007C4802 /* feed_handler.h */,
+				5A6CFCD21A7DF367007C4802 /* ib_wrapper.h */,
+				5A6CFCD31A7DF367007C4802 /* k.h */,
+			);
+			sourceTree = "<group>";
+		};
+		5A6CFCA01A7DF1E8007C4802 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				5A6CFCDC1A7DF583007C4802 /* libIB Feed Handler Doc.dylib */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		5A6CFCDA1A7DF583007C4802 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5A6CFCEB1A7DF5A2007C4802 /* k.h in Headers */,
+				5A6CFCE91A7DF59C007C4802 /* feed_handler.h in Headers */,
+				5A6CFCEA1A7DF59F007C4802 /* ib_wrapper.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXLegacyTarget section */
+		5A6CFCD41A7DF4DC007C4802 /* IB Feed Handler */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 5A6CFCD51A7DF4DC007C4802 /* Build configuration list for PBXLegacyTarget "IB Feed Handler" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			dependencies = (
+			);
+			name = "IB Feed Handler";
+			passBuildSettingsInEnvironment = 1;
+			productName = "IB Feed Handler";
+		};
+/* End PBXLegacyTarget section */
+
+/* Begin PBXNativeTarget section */
+		5A6CFCDB1A7DF583007C4802 /* IB Feed Handler Doc */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5A6CFCE41A7DF583007C4802 /* Build configuration list for PBXNativeTarget "IB Feed Handler Doc" */;
+			buildPhases = (
+				5A6CFCD81A7DF583007C4802 /* Sources */,
+				5A6CFCD91A7DF583007C4802 /* Frameworks */,
+				5A6CFCDA1A7DF583007C4802 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "IB Feed Handler Doc";
+			productName = "IB Feed Handler Doc";
+			productReference = 5A6CFCDC1A7DF583007C4802 /* libIB Feed Handler Doc.dylib */;
+			productType = "com.apple.product-type.library.dynamic";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		5A6CFC911A7DEFD0007C4802 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0610;
+				ORGANIZATIONNAME = "Morten Sorensen";
+				TargetAttributes = {
+					5A6CFCD41A7DF4DC007C4802 = {
+						CreatedOnToolsVersion = 6.1.1;
+					};
+					5A6CFCDB1A7DF583007C4802 = {
+						CreatedOnToolsVersion = 6.1.1;
+					};
+				};
+			};
+			buildConfigurationList = 5A6CFC941A7DEFD0007C4802 /* Build configuration list for PBXProject "IB Feed Handler" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 5A6CFC901A7DEFD0007C4802;
+			productRefGroup = 5A6CFCA01A7DF1E8007C4802 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				5A6CFCD41A7DF4DC007C4802 /* IB Feed Handler */,
+				5A6CFCDB1A7DF583007C4802 /* IB Feed Handler Doc */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		5A6CFCD81A7DF583007C4802 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				5A6CFCE81A7DF599007C4802 /* feed_handler.cpp in Sources */,
+				5A6CFCE71A7DF596007C4802 /* Makefile in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		5A6CFC961A7DEFD0007C4802 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		5A6CFC971A7DEFD0007C4802 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		5A6CFCD61A7DF4DC007C4802 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUGGING_SYMBOLS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		5A6CFCD71A7DF4DC007C4802 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		5A6CFCE51A7DF583007C4802 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				EXECUTABLE_PREFIX = lib;
+				GCC_ENABLE_CPP_EXCEPTIONS = YES;
+				GCC_ENABLE_CPP_RTTI = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		5A6CFCE61A7DF583007C4802 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				EXECUTABLE_PREFIX = lib;
+				GCC_ENABLE_CPP_EXCEPTIONS = YES;
+				GCC_ENABLE_CPP_RTTI = YES;
+				GCC_SYMBOLS_PRIVATE_EXTERN = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		5A6CFC941A7DEFD0007C4802 /* Build configuration list for PBXProject "IB Feed Handler" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5A6CFC961A7DEFD0007C4802 /* Debug */,
+				5A6CFC971A7DEFD0007C4802 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		5A6CFCD51A7DF4DC007C4802 /* Build configuration list for PBXLegacyTarget "IB Feed Handler" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5A6CFCD61A7DF4DC007C4802 /* Debug */,
+				5A6CFCD71A7DF4DC007C4802 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+		5A6CFCE41A7DF583007C4802 /* Build configuration list for PBXNativeTarget "IB Feed Handler Doc" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				5A6CFCE51A7DF583007C4802 /* Debug */,
+				5A6CFCE61A7DF583007C4802 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 5A6CFC911A7DEFD0007C4802 /* Project object */;
+}
