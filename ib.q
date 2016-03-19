@@ -1,6 +1,22 @@
 \d .ib
 
-system"l ",getenv[`KDBCODE],"/common/ib.q"
+/- dynamically load shared object
+so:`feed_handler
+connect:so 2:(`connect;3)
+disconect:so 2:(`disconnect;1)
+connected:so 2:(`is_connected;1)
+reqcurrenttime:so 2:(`req_current_time;1)
+checkmessages:so 2:(`check_messages;1)
+serverversion:so 2:(`server_version;1)
+
+/- API callbacks
+/onerror:{.lg.o[`onerror;x]}
+onerror:{x}
+oncurrenttime:{0N!x; x}
+onopenorder:{}
+onopenorderend:{}
+onorderstatus:{}
+onnextorderid:{}
 
 source:`ib
 
