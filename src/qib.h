@@ -1,87 +1,82 @@
-//
-//  feed_handler.h
-//  ib_feed_handler
-//
-//  Created by Morten Sørensen on 8/25/14.
-//  Copyright (c) 2014 Morten Sorensen. All rights reserved.
-//
+#ifndef qib_h
+#define qib_h
 
-#ifndef __ib_feed_handler__feed_handler__
-#define __ib_feed_handler__feed_handler__
+#include "helpers.h"
+#include <config.h>
+#include "Contract.h"
+#include "Order.h"
 
-#include <twsapi/EPosixClientSocket.h>
-#include <twsapi/EWrapper.h>
-#include <twsapi/TwsSocketClientErrors.h>
-#include <twsapi/Contract.h>
-#include <twsapi/Order.h>
-#include <twsapi/OrderState.h>
-#include <twsapi/Execution.h>
-#include <twsapi/CommissionReport.h>
-#include "ib_wrapper.h"
-#include "k.h"
-#include <string>
-#include <map>
-
-
-class IBFeedhandler;
-class DebugWrapper;
-
-class IBFeedhandler : IBWrapper
+extern "C"
 {
-public:
-    IBFeedhandler();
-    IBFeedhandler(const std::string &_ib_host, const int ib_port, const int _ib_client_id);
-    virtual ~IBFeedhandler();
+    K version(K x);
+    K LoadLibrary(K x);
+    K connect(K host, K port, K clientId);
+    K disconnect(K x);
+    K isConnected(K x);
+    K reqCurrentTime(K x);
+    K reqMktData(K conId, K contract, K genericTicks, K snapsnot);
+    K reqAccountUpdates(K subscribe, K acctCode);
+    K placeOrder(K id, K contract, K order);
+    K cancelOrder(K id);
+}
 
-    std::string ib_host;
-    int ib_port;
-    int ib_client_id;
-    IB::EPosixClientSocket *ib_client;
-    
-    std::map<int, IB::Contract*> subscriptions;
-    bool is_connected() const;
+static bool checkDictTypes(K dict, std::map<std::string, short> &propTypes);
+static Contract *createContract(K dict, const char *&error);
+static Order *createOrder(K dict, const char *&error);
 
-    bool connect(char *host, int port, int client_id);
-    void disconnect();
-    void subscribe(const int &sid, IB::Contract &contract);
-    void unsubscribe(const int &sid);
-    void unsubscribe(const std::string &sym);
-    
-    // Callbacks from IBWrapper
-    void tickPrice(IB::TickerId sid, IB::TickType tick_type, double price, int auto_executable);
-    void tickSize(IB::TickerId sid, IB::TickType tick_type, int size);
-    void tickString(IB::TickerId sid, IB::TickType tick_type, const IB::IBString& value);
-    void updateMktDepthL2(IB::TickerId sid, int position, IB::IBString market_maker, int operation,
-                          int side, double price, int size);
-    void connectionClosed();
-    void error(const int id, const int errorCode, const IB::IBString errorString);
-    void nextValidId(IB::OrderId orderId);
-    void orderStatus(IB::OrderId orderId, const IB::IBString &status,
-                     int filled, int remaining, double avgFillPrice, int permId,
-                     int parentId, double lastFillPrice, int clientId,
-                     const IB::IBString& whyHeld);
-    void openOrder(IB::OrderId orderId, const IB::Contract&,
-                   const IB::Order&, const IB::OrderState&);
-    void openOrderEnd();
-    void currentTime(long time);
-    void execDetails(int reqId, const IB::Contract& contract,
-                     const IB::Execution& execution);
-//    void contractDetails(int reqId, const IB::ContractDetails& contractDetails);
-
-
-    K consume(const std::string &fun, K x);
-    
-private:
-    IB::Contract &find_contract(const std::string &symbol);
-    K contract2dict(const IB::Contract &contract);
-    K order2dict(const IB::Order &order);
-    K orderstate2dict(const IB::OrderState &state);
-    K execution2dict(const IB::Execution &exec);
-    K commissionreport2dict(const IB::CommissionReport &report);
+auto contractPropTypes = std::map<std::string, short> {
+    { "conId",          -KJ },
+    { "currency",       -KS },
+    { "exchange",       -KS },
+    { "expiry",         -KS },
+    { "includeExpired", -KB },
+    { "localSymbol",    -KS },
+    { "multiplier",     -KS },
+    { "primaryExchange", -KS },
+    { "right",          -KS },
+    { "secId",          -KS },
+    { "secIdType",      -KS },
+    { "secType",        -KS },
+    { "strike",         -KS },
+    { "symbol",         -KS },
+    { "tradingClass",   -KS }
 };
 
+auto orderPropTypes = std::map<std::string, short> {
+    // Order Identifiers
+    { "clientId",           -KJ },
+    { "orderId",            -KJ },
+    { "permId",             -KJ },
+    // Main Order Fields
+    { "action",             -KS },
+    { "auxPrice",           -KF },
+    { "lmtPrice",           -KF },
+    { "orderType",          -KS },
+    { "totalQuantity",      -KJ },
+    // Extended Order Fields
+    { "allOrNone",          -KB },
+    { "blockOrder",         -KB },
+    { "displaySize",        -KI },
+    { "goodAfterTime",      -KS },
+    { "goodTillDate",       -KS },
+    { "hidden",             -KB },
+    { "minQty",             -KI },
+    { "ocaType",            -KI },
+    { "orderRef",           -KS },
+    { "outsideRth",         -KB },
+    { "overridePercentageConstraints", -KB },
+    { "parentId",           -KJ },
+    { "percentOffset",      -KF },
+    { "rule80A",            -KS },
+    { "tif",                -KS },
+    { "sweepToFill",        -KB },
+    { "trailingPercent",    -KS },
+    { "trailStopPrice",     -KF },
+    { "transmit",           -KB },
+    { "triggerfunction",    -KI },
+    { "activeStartTime",    -KS },
+    { "activeStopTime",     -KS }
+    
+};
 
-IBFeedhandler feed_handler;
-
-
-#endif /* defined(__ib_feed_handler__feed_handler__) */
+#endif

@@ -1,9 +1,15 @@
-.DS_Store
-profile
-
-# X Code
-*/build/
-*.so
-*.dSYM
-*.pbxuser
-*.mode1v3
+CMakeCache.txt
+CMakeFiles
+CMakeScripts
+Makefile
+cmake_install.cmake
+install_manifest.txt
+bin
+!bin/.gitkeep
+build
+!build/.gitkeep
+third_party/ib/IBJts/samples
+third_party/ib/IBJts/source/JavaClient
+*.xcodeproj
+*.build
+*.DS_Store

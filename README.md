@@ -1,2 +1,16 @@
 # A Q wrapper for the Interactive Brokers API
-Download Rudi Meier's TWS API at https://github.com/rudimeier/twsapi and link to this during compilating. See Makefile for details.
+
+# Building
+````
+cd build
+cmake ..
+make
+````
+Optionally, to generate an XCode project, type `cmake -G Xcode ..`.
+
+# TWS API
+To upgrade the TWS API download the source files from http://interactivebrokers.github.io/ and extract the Posix Client into `third_party/ib`:
+````
+cd third_party/ib
+tar -xvf twsapi_macunix.971.01.jar
+````
