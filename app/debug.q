@@ -1,4 +1,4 @@
-qib:.Q.def[enlist[`appdir]!enlist`$"/Users/morten/Sandbox/algotrading/feeds/qib/app"] .Q.opt .z.x;
+qib:.Q.def[enlist[`appdir]!enlist`$"qib/app"] .Q.opt .z.x;
 system"l ",string[qib`appdir],"/ib.q"
 
 out"Connecting"

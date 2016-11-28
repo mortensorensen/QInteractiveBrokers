@@ -2,11 +2,12 @@
 
 # Building
 ````
+mkdir build
 cd build
 cmake ..
 make
 ````
-Optionally, to generate an XCode project, type `cmake -G Xcode ..`.
+Optionally, to generate an XCode project, run `cmake -G Xcode ..`.
 
 # TWS API
 To upgrade the TWS API download the source files from http://interactivebrokers.github.io/ and extract the Posix Client into `third_party/ib`:
