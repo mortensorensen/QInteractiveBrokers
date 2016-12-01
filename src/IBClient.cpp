@@ -53,7 +53,7 @@ void IBClient::receiveData(const char *fun, K x)
         O("Broken socket");
     } else if (r->t == -128) {
         // TODO: Give more details about types
-        O("Error calling %s: %s\n", fun, r->s);
+        O("Error calling '%s': %s\n", fun, r->s);
     }
     r0(r);
 }

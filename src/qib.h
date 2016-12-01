@@ -20,7 +20,7 @@ extern "C"
     K cancelOrder(K id);
 }
 
-static bool checkDictTypes(K dict, std::map<std::string, short> &propTypes);
+static bool checkDictTypes(K dict, std::map<std::string, short> &propTypes, const char *&error);
 static Contract *createContract(K dict, const char *&error);
 static Order *createOrder(K dict, const char *&error);
 
@@ -76,7 +76,6 @@ auto orderPropTypes = std::map<std::string, short> {
     { "triggerfunction",    -KI },
     { "activeStartTime",    -KS },
     { "activeStopTime",     -KS }
-    
 };
 
 #endif

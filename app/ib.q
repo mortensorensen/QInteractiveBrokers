@@ -11,6 +11,7 @@ quote:1!flip`id`sym`time`bid`ask`bidsize`asksize`autoexe!"jspffjjb"$\:()
 trade:1!flip`id`sym`time`brokertime`price`size`autoexe!"jspjfjb"$\:()
 
 i:`quote`trade!0 0
+.ib.nextId:0Nj
 
 tickmap:1!flip `field`table`column!flip 3 cut (
 	0;`quote;`bidsize;
@@ -27,7 +28,7 @@ tickmap:1!flip `field`table`column!flip 3 cut (
 
 .ib.reg[`system] {[id;code;msg] out "SYSTEM: ","|" sv string[id,code],enlist msg}
 .ib.reg[`warning] {[id;code;msg] out "WARNING: ","|" sv string[id,code],enlist msg}
-.ib.reg[`error] {[id;code;msg] '"ERROR: ","|" sv string[id,code],enlist msg}
+.ib.reg[`error] {[id;code;msg] out"ERROR: ","|" sv string[id,code],enlist msg}
 
 .ib.reg[`connectionClosed] {[x] out"Connection closed"}
 

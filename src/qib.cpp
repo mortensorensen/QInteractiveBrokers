@@ -3,15 +3,17 @@
 #include "IBClient.h"
 #include <sstream>
 
+#define streq(x, y) strcmp(x, y) == 0
+
 IBClient *ib;
 
 __attribute__((constructor))
-static void initialize_api() {
+ZV initialize_api() {
     ib = new IBClient();
 }
 
 __attribute__((destructor))
-static void destroy_api() {
+ZV destroy_api() {
     if (ib) {
         ib->disconnect();
         delete ib;
@@ -116,7 +118,8 @@ K reqMktData(K tickerId, K contract, K genericTicks, K snapsnot)
     Q(tickerId->t != -KJ || contract->t != XD || genericTicks->t != KC || snapsnot->t != -KB, "type");
     Q(!ib->isConnected(), "connection");
     
-    Q(!checkDictTypes(contract, contractPropTypes), "dict type");
+    const char *error;
+    Q(!checkDictTypes(contract, contractPropTypes, error), error);
     
     const char *errorMsg = nullptr;
     auto c = createContract(contract, errorMsg);
@@ -139,11 +142,13 @@ K placeOrder(K id, K contract, K order)
 {
     Q(id->t != -KJ || contract->t != XD || order->t != XD, "type");
     Q(!ib->isConnected(), "connection");
-    Q(!checkDictTypes(contract, contractPropTypes), "contract dict type");
-    Q(!checkDictTypes(order, orderPropTypes), "order dict type");
+    
+    const char *error;
+    Q(!checkDictTypes(contract, contractPropTypes, error), error);
+    Q(!checkDictTypes(order, orderPropTypes, error), error);
     
     const char *errorMsg = nullptr;
-    auto c = createContract(order, errorMsg);
+    auto c = createContract(contract, errorMsg);
     Q(errorMsg, errorMsg);
     
     auto o = createOrder(order, errorMsg);
@@ -166,14 +171,20 @@ K cancelOrder(K id)
 // Static methods
 ////////////////////
 
-static bool checkDictTypes(K dict, std::map<std::string, short> &propTypes)
+Z bool checkDictTypes(K dict, std::map<std::string, short> &propTypes, const char *&error)
 {
-    if (dict->t != XD) return false;
+    if (dict->t != XD) {
+        error = "argument must be a dict";
+        return false;
+    }
     
     K keys = kK(dict)[0];
     K vals = kK(dict)[1];
     
-    if (vals->t != KS) return false;
+    if (keys->t != KS) {
+        error = "keys must be syms";
+        return false;
+    }
     
     int type;
     
@@ -182,14 +193,73 @@ static bool checkDictTypes(K dict, std::map<std::string, short> &propTypes)
         auto search = propTypes.find(key);
         if (search != propTypes.end()) {
             type = vals->t == 0 ? kK(vals)[i]->t : -abs(vals->t);
-            if (type != search->second) return false;
+            if (type != search->second) {
+                std::stringstream ss;
+                ss << "Key " << key << ": Type " << type << " (expected " << search->second << ")\n";
+                error = ss.str().c_str();
+                return false;
+            }
         }
     }
             
     return true;
 }
 
-static Contract *createContract(K dict, const char *&error)
+ZV setAtom(V *property, K x)
+{
+    switch (xt) {
+        case  -1: *((bool*)property) = x->g == 1; break;
+        case  -4: *((C*)property) = x->g; break;
+        case  -5: *((H*)property) = x->h; break;
+        case  -6: *((I*)property) = x->i; break;
+        case  -7: *((J*)property) = x->j; break;
+        case  -8: *((E*)property) = x->e; break;
+        case  -9: *((F*)property) = x->f; break;
+        case -10: *((C*)property) = x->g; break;
+        case -11: *((IBString*)property) = x->s; break;
+        case -12: *((J*)property) = x->j; break;
+        case -13: *((I*)property) = x->i; break;
+        case -14: *((I*)property) = x->i; break;
+        case -15: *((F*)property) = x->f; break;
+        case -16: *((J*)property) = x->j; break;
+        case -17: *((I*)property) = x->i; break;
+        case -18: *((I*)property) = x->i; break;
+        case -19: *((I*)property) = x->i; break;
+        default: return;
+    }
+}
+
+V setList(V *property, K x);
+V setItem(V *property, K x, I index);
+V setProperty(V *property, K x, I index);
+
+V setItem(V *property, K x, I index)
+{
+    switch (xt) {
+        case  0: setProperty(property, kK(x)[index], index); break;
+        case  1: setAtom(property, kb(kG(x)[index])); break;
+        case  4: setAtom(property, kg(kG(x)[index])); break;
+        case  5: setAtom(property, kh(kH(x)[index])); break;
+        case  6: setAtom(property, ki(kI(x)[index])); break;
+        case  7: setAtom(property, kj(kJ(x)[index])); break;
+        case  8: setAtom(property, ke(kE(x)[index])); break;
+        case  9: setAtom(property, kf(kF(x)[index])); break;
+        case 10: setAtom(property, kc(kC(x)[index])); break;
+        case 11: setAtom(property, ks(kS(x)[index])); break;
+        case 14: setAtom(property, kd(kI(x)[index])); break;
+        case 15: setAtom(property, kz(kF(x)[index])); break;
+        default: return;
+    }
+}
+
+V setProperty(V *property, K x, I index)
+{
+    if (xt < 0) setAtom(property, x);
+    else if ((0 <= xt) && (xt < 20)) setItem(property, x, index);
+    else return;
+}
+
+Z Contract *createContract(K dict, const char *&error)
 {
     if (dict->t != XD) {
         error = "type";
@@ -200,38 +270,38 @@ static Contract *createContract(K dict, const char *&error)
     K keys = kK(dict)[0];
     K vals = kK(dict)[1];
     
-    int type;
+    const char *key;
     
     for (int i = 0; i < keys->n; i++) {
-        auto key = kS(keys)[i];
-        type = vals->t == 0 ? kK(vals)[i]->t : -abs(vals->t);
+        key = kS(keys)[i];
         
-        if (strcmp(key, "conId") == 0) c->conId = kJ(vals)[i];
-        else if (strcmp(key, "currency") == 0) c->currency = kS(vals)[i];
-        else if (strcmp(key, "exchange") == 0) c->exchange = kS(vals)[i];
-        else if (strcmp(key, "expiry") == 0) c->expiry = kS(vals)[i];
-        else if (strcmp(key, "includeExpired") == 0) c->includeExpired = kG(vals)[i];
-        else if (strcmp(key, "localSymbol") == 0) c->localSymbol = kS(vals)[i];
-        else if (strcmp(key, "multiplier") == 0) c->multiplier = kS(vals)[i];
-        else if (strcmp(key, "primaryExchange") == 0) c->primaryExchange = kS(vals)[i];
-        else if (strcmp(key, "right") == 0) c->right = kS(vals)[i];
-        else if (strcmp(key, "secId") == 0) c->secId = kS(vals)[i];
-        else if (strcmp(key, "secType") == 0) c->secType = kS(vals)[i];
-        else if (strcmp(key, "strike") == 0) c->strike = kF(vals)[i];
-        else if (strcmp(key, "symbol") == 0) c->symbol = kS(vals)[i];
-        else if (strcmp(key, "tradingClass") == 0) c->tradingClass = kS(vals)[i];
+        if (streq(key, "conId"))            setProperty(&c->conId, vals, i);
+        else if (streq(key, "currency"))    setProperty(&c->currency, vals, i);
+        else if (streq(key, "exchange"))    setProperty(&c->exchange, vals, i);
+        else if (streq(key, "expiry"))      setProperty(&c->expiry, vals, i);
+        else if (streq(key, "includeExpired")) setProperty(&c->includeExpired, vals, i);
+        else if (streq(key, "localSymbol")) setProperty(&c->localSymbol, vals, i);
+        else if (streq(key, "multiplier"))  setProperty(&c->multiplier, vals, i);
+        else if (streq(key, "primaryExchange")) setProperty(&c->primaryExchange, vals, i);
+        else if (streq(key, "right"))       setProperty(&c->right, vals, i);
+        else if (streq(key, "secId"))       setProperty(&c->secId, vals, i);
+        else if (streq(key, "secType"))     setProperty(&c->secType, vals, i);
+        else if (streq(key, "strike"))      setProperty(&c->strike, vals, i);
+        else if (streq(key, "symbol"))      setProperty(&c->symbol, vals, i);
+        else if (streq(key, "tradingClass")) setProperty(&c->tradingClass, vals, i);
         else {
             std::stringstream ss;
+            I type = vals->t == 0 ? kK(vals)[i]->t : -abs(vals->t);
             ss << "Value " << key << ": Type " << type << " not recognized\n";
             error = ss.str().c_str();
             return nullptr;
         }
     }
     
-    return c;
+    R c;
 }
 
-static Order *createOrder(K dict, const char *&error)
+Z Order *createOrder(K dict, const char *&error)
 {
     if (dict->t != XD) {
         error = "type";
@@ -242,28 +312,43 @@ static Order *createOrder(K dict, const char *&error)
     K keys = kK(dict)[0];
     K vals = kK(dict)[1];
     
-    int type;
+    const char *key;
     
     for (int i = 0; i < keys->n; i++) {
-        auto key = kS(keys)[i];
-        type = vals->t == 0 ? kK(vals)[i]->t : -abs(vals->t);
-        
-        if (strcmp(key, "clienId") == 0) order->clientId = kJ(vals)[i];
-        else if (strcmp(key, "orderId") == 0) order->orderId = kJ(vals)[i];
-        else if (strcmp(key, "permId") == 0) order->permId = kJ(vals)[i];
-        else if (strcmp(key, "action") == 0) order->action = kS(vals)[i];
-        else if (strcmp(key, "auxPrice") == 0) order->auxPrice = kF(vals)[i];
-        else if (strcmp(key, "lmtPrice") == 0) order->lmtPrice = kF(vals)[i];
-        else if (strcmp(key, "orderType") == 0) order->orderType = kS(vals)[i];
-        else if (strcmp(key, "totalQuantity") == 0) order->totalQuantity= kJ(vals)[i];
+        key = kS(keys)[i];
+
+        // Order Identifiers
+        if (streq(key, "clienId"))          setProperty(&order->clientId, vals, i);
+        else if (streq(key, "orderId"))     setProperty(&order->orderId, vals, i);
+        else if (streq(key, "permId"))      setProperty(&order->permId, vals, i);
+        // Main Order Fields
+        else if (streq(key, "action"))      setProperty(&order->action, vals, i);
+        else if (streq(key, "auxPrice"))    setProperty(&order->auxPrice, vals, i);
+        else if (streq(key, "lmtPrice"))    setProperty(&order->lmtPrice, vals, i);
+        else if (streq(key, "orderType"))   setProperty(&order->orderType, vals, i);
+        else if (streq(key, "totalQuantity")) setProperty(&order->totalQuantity, vals, i);
+        // Extended Order Fields
+        else if (streq(key, "allOrNone"))   setProperty(&order->allOrNone, vals, i);
+        else if (streq(key, "blockOrder"))  setProperty(&order->blockOrder, vals, i);
+        else if (streq(key, "displaySize")) setProperty(&order->displaySize, vals, i);
+        else if (streq(key, "goodAfterTime")) setProperty(&order->goodAfterTime, vals, i);
+        else if (streq(key, "goodTillDate")) setProperty(&order->goodTillDate, vals, i);
+        else if (streq(key, "hidden"))      setProperty(&order->hidden, vals, i);
+        else if (streq(key, "minQty"))      setProperty(&order->minQty, vals, i);
+        else if (streq(key, "ocaGroup"))    setProperty(&order->ocaGroup, vals, i);
+        else if (streq(key, "ocaType"))     setProperty(&order->ocaType, vals, i);
+        else if (streq(key, "orderRef"))    setProperty(&order->orderRef, vals, i);
+        else if (streq(key, "outsideRth"))  setProperty(&order->outsideRth, vals, i);
+        else if (streq(key, "overridePercentageConstraints")) setProperty(&order->overridePercentageConstraints, vals, i);
         // TODO: Add remaining options
         else {
             std::stringstream ss;
+            int type = vals->t == 0 ? kK(vals)[i]->t : vals->t;
             ss << "Value " << key << ": Type " << type << " not recognized\n";
             error = ss.str().c_str();
             return nullptr;
         }
     }
     
-    return order;
+    R order;
 }
