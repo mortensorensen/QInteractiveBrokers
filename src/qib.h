@@ -20,9 +20,16 @@ extern "C"
     K cancelOrder(K id);
 }
 
-static bool checkDictTypes(K dict, std::map<std::string, short> &propTypes, const char *&error);
-static Contract *createContract(K dict, const char *&error);
-static Order *createOrder(K dict, const char *&error);
+Z bool checkDictTypes(K dict, std::map<std::string, short> &propTypes, const char *&error);
+
+Z Contract *createContract(K dict, std::string &error);
+Z Order *createOrder(K dict, std::string &error);
+
+V setList(V *property, K x);
+V setItem(V *property, K x, I index);
+V setProperty(V *property, K x, I index);
+V setProperties(K dict, std::map<std::string, void*> props, std::string &error);
+
 
 auto contractPropTypes = std::map<std::string, short> {
     { "conId",          -KJ },

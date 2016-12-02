@@ -118,12 +118,9 @@ K reqMktData(K tickerId, K contract, K genericTicks, K snapsnot)
     Q(tickerId->t != -KJ || contract->t != XD || genericTicks->t != KC || snapsnot->t != -KB, "type");
     Q(!ib->isConnected(), "connection");
     
-    const char *error;
-    Q(!checkDictTypes(contract, contractPropTypes, error), error);
-    
-    const char *errorMsg = nullptr;
-    auto c = createContract(contract, errorMsg);
-    Q(errorMsg, errorMsg);
+    std::string error;
+    auto c = createContract(contract, error);
+    Q(!error.empty(), error.c_str());
     
     ib->reqMktData(tickerId->j, *c, "", snapsnot->i == 1);
     
@@ -143,16 +140,12 @@ K placeOrder(K id, K contract, K order)
     Q(id->t != -KJ || contract->t != XD || order->t != XD, "type");
     Q(!ib->isConnected(), "connection");
     
-    const char *error;
-    Q(!checkDictTypes(contract, contractPropTypes, error), error);
-    Q(!checkDictTypes(order, orderPropTypes, error), error);
+    std::string error;
+    auto c = createContract(contract, error);
+    Q(!error.empty(), error.c_str());
     
-    const char *errorMsg = nullptr;
-    auto c = createContract(contract, errorMsg);
-    Q(errorMsg, errorMsg);
-    
-    auto o = createOrder(order, errorMsg);
-    Q(errorMsg, errorMsg);
+    auto o = createOrder(order, error);
+    Q(!error.empty(), error.c_str());
     
     ib->placeOrder(id->j, *c, *o);
     R NULL;
@@ -186,9 +179,9 @@ Z bool checkDictTypes(K dict, std::map<std::string, short> &propTypes, const cha
         return false;
     }
     
-    int type;
+    I type;
     
-    for (int i = 0; i < keys->n; i++) {
+    for (I i = 0; i < keys->n; i++) {
         auto key = kS(keys)[i];
         auto search = propTypes.find(key);
         if (search != propTypes.end()) {
@@ -229,10 +222,6 @@ ZV setAtom(V *property, K x)
     }
 }
 
-V setList(V *property, K x);
-V setItem(V *property, K x, I index);
-V setProperty(V *property, K x, I index);
-
 V setItem(V *property, K x, I index)
 {
     switch (xt) {
@@ -259,96 +248,100 @@ V setProperty(V *property, K x, I index)
     else return;
 }
 
-Z Contract *createContract(K dict, const char *&error)
+V setProperties(K dict, std::map<std::string, void*> props, std::string &error)
 {
     if (dict->t != XD) {
         error = "type";
-        return nullptr;
+        return;
     }
     
-    auto c = new Contract();
     K keys = kK(dict)[0];
     K vals = kK(dict)[1];
     
-    const char *key;
+    if (keys->t != KS) {
+        error = "keys must be syms";
+        return;
+    }
     
-    for (int i = 0; i < keys->n; i++) {
+    std::map<std::string, void*>::const_iterator it;
+    std::string key;
+    
+    for (I i = 0; i < keys->n; i++) {
         key = kS(keys)[i];
-        
-        if (streq(key, "conId"))            setProperty(&c->conId, vals, i);
-        else if (streq(key, "currency"))    setProperty(&c->currency, vals, i);
-        else if (streq(key, "exchange"))    setProperty(&c->exchange, vals, i);
-        else if (streq(key, "expiry"))      setProperty(&c->expiry, vals, i);
-        else if (streq(key, "includeExpired")) setProperty(&c->includeExpired, vals, i);
-        else if (streq(key, "localSymbol")) setProperty(&c->localSymbol, vals, i);
-        else if (streq(key, "multiplier"))  setProperty(&c->multiplier, vals, i);
-        else if (streq(key, "primaryExchange")) setProperty(&c->primaryExchange, vals, i);
-        else if (streq(key, "right"))       setProperty(&c->right, vals, i);
-        else if (streq(key, "secId"))       setProperty(&c->secId, vals, i);
-        else if (streq(key, "secType"))     setProperty(&c->secType, vals, i);
-        else if (streq(key, "strike"))      setProperty(&c->strike, vals, i);
-        else if (streq(key, "symbol"))      setProperty(&c->symbol, vals, i);
-        else if (streq(key, "tradingClass")) setProperty(&c->tradingClass, vals, i);
-        else {
-            std::stringstream ss;
-            I type = vals->t == 0 ? kK(vals)[i]->t : -abs(vals->t);
-            ss << "Value " << key << ": Type " << type << " not recognized\n";
-            error = ss.str().c_str();
-            return nullptr;
+        it = props.find(key);
+        if (it != props.end()) {
+            setProperty(it->second, vals, i);
+        } else {
+            error = "Property " + key + " not recognized\n";
         }
     }
+}
+
+Z Contract *createContract(K dict, std::string &error)
+{
+    auto c = new Contract();
+    auto props = std::map<std::string, void*> {
+        { "conId",          &c->conId },
+        { "currency",       &c->currency },
+        { "exchange",       &c->exchange },
+        { "expiry",         &c->expiry },
+        { "includeExpired", &c->includeExpired },
+        { "localSymbol",    &c->localSymbol },
+        { "multiplier",     &c->multiplier },
+        { "primaryExchange",&c->primaryExchange },
+        { "right",          &c->right },
+        { "secId",          &c->secId },
+        { "secType",        &c->secType },
+        { "strike",         &c->strike },
+        { "symbol",         &c->symbol },
+        { "tradingClass",   &c->tradingClass }
+    };
+    
+    setProperties(dict, props, error);
     
     R c;
 }
 
-Z Order *createOrder(K dict, const char *&error)
+Z Order *createOrder(K dict, std::string &error)
 {
-    if (dict->t != XD) {
-        error = "type";
-        return nullptr;
-    }
-    
-    auto order = new Order();
-    K keys = kK(dict)[0];
-    K vals = kK(dict)[1];
-    
-    const char *key;
-    
-    for (int i = 0; i < keys->n; i++) {
-        key = kS(keys)[i];
-
+    auto o = new Order();
+    auto props = std::map<std::string, void*> {
         // Order Identifiers
-        if (streq(key, "clienId"))          setProperty(&order->clientId, vals, i);
-        else if (streq(key, "orderId"))     setProperty(&order->orderId, vals, i);
-        else if (streq(key, "permId"))      setProperty(&order->permId, vals, i);
+        { "clienId",        &o->clientId },
+        { "orderId",        &o->orderId },
+        { "permId",         &o->permId },
         // Main Order Fields
-        else if (streq(key, "action"))      setProperty(&order->action, vals, i);
-        else if (streq(key, "auxPrice"))    setProperty(&order->auxPrice, vals, i);
-        else if (streq(key, "lmtPrice"))    setProperty(&order->lmtPrice, vals, i);
-        else if (streq(key, "orderType"))   setProperty(&order->orderType, vals, i);
-        else if (streq(key, "totalQuantity")) setProperty(&order->totalQuantity, vals, i);
+        { "action",         &o->action },
+        { "auxPrice",       &o->auxPrice },
+        { "lmtPrice",       &o->lmtPrice },
+        { "orderType",      &o->orderType },
+        { "totalQuantity",  &o->totalQuantity },
         // Extended Order Fields
-        else if (streq(key, "allOrNone"))   setProperty(&order->allOrNone, vals, i);
-        else if (streq(key, "blockOrder"))  setProperty(&order->blockOrder, vals, i);
-        else if (streq(key, "displaySize")) setProperty(&order->displaySize, vals, i);
-        else if (streq(key, "goodAfterTime")) setProperty(&order->goodAfterTime, vals, i);
-        else if (streq(key, "goodTillDate")) setProperty(&order->goodTillDate, vals, i);
-        else if (streq(key, "hidden"))      setProperty(&order->hidden, vals, i);
-        else if (streq(key, "minQty"))      setProperty(&order->minQty, vals, i);
-        else if (streq(key, "ocaGroup"))    setProperty(&order->ocaGroup, vals, i);
-        else if (streq(key, "ocaType"))     setProperty(&order->ocaType, vals, i);
-        else if (streq(key, "orderRef"))    setProperty(&order->orderRef, vals, i);
-        else if (streq(key, "outsideRth"))  setProperty(&order->outsideRth, vals, i);
-        else if (streq(key, "overridePercentageConstraints")) setProperty(&order->overridePercentageConstraints, vals, i);
-        // TODO: Add remaining options
-        else {
-            std::stringstream ss;
-            int type = vals->t == 0 ? kK(vals)[i]->t : vals->t;
-            ss << "Value " << key << ": Type " << type << " not recognized\n";
-            error = ss.str().c_str();
-            return nullptr;
-        }
-    }
+        { "allOrNone",      &o->allOrNone },
+        { "blockOrder",     &o->blockOrder },
+        { "displaySize",    &o->displaySize },
+        { "goodAfterTime",  &o->goodAfterTime },
+        { "goodTillDate",   &o->goodTillDate },
+        { "hidden",         &o->hidden },
+        { "minQty",         &o->minQty },
+        { "ocaGroup",       &o->ocaGroup },
+        { "orderRef",       &o->orderRef },
+        { "outsideRth",     &o->outsideRth },
+        { "overridePercentageConstraints", &o->overridePercentageConstraints },
+        { "parentId",       &o->parentId },
+        { "percentOffset",  &o->percentOffset },
+        { "rule80A",        &o->rule80A },
+        { "tif",            &o->tif },
+        { "sweepToFill",    &o->sweepToFill },
+        { "trailingPercent",&o->trailingPercent },
+        { "trailStopPrice", &o->trailStopPrice },
+        { "transmit",       &o->transmit },
+        { "triggerMethod",  &o->triggerMethod },
+        { "activeStartTime",&o->activeStartTime },
+        { "activeStopTime", &o->activeStopTime }
+    };
     
-    R order;
+    setProperties(dict, props, error);
+
+    R o;
 }
