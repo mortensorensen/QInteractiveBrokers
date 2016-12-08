@@ -20,69 +20,13 @@ extern "C"
     K cancelOrder(K id);
 }
 
-Z bool checkDictTypes(K dict, std::map<std::string, short> &propTypes, const char *&error);
+Z Contract createContract(K dict, std::string &error);
+Z Order createOrder(K dict, std::string &error);
 
-Z Contract *createContract(K dict, std::string &error);
-Z Order *createOrder(K dict, std::string &error);
+template<typename T> V setItem(T &property, G type, K x, I index, std::string &error);
+template<typename T> V setProperty(T &property, I expectedType, K x, I index, std::string &error);
+V setProperties(K dict, std::map<std::string, std::function<void(Contract&)>> &map, std::string &error);
 
-V setList(V *property, K x);
-V setItem(V *property, K x, I index);
-V setProperty(V *property, K x, I index);
-V setProperties(K dict, std::map<std::string, void*> props, std::string &error);
-
-
-auto contractPropTypes = std::map<std::string, short> {
-    { "conId",          -KJ },
-    { "currency",       -KS },
-    { "exchange",       -KS },
-    { "expiry",         -KS },
-    { "includeExpired", -KB },
-    { "localSymbol",    -KS },
-    { "multiplier",     -KS },
-    { "primaryExchange", -KS },
-    { "right",          -KS },
-    { "secId",          -KS },
-    { "secIdType",      -KS },
-    { "secType",        -KS },
-    { "strike",         -KS },
-    { "symbol",         -KS },
-    { "tradingClass",   -KS }
-};
-
-auto orderPropTypes = std::map<std::string, short> {
-    // Order Identifiers
-    { "clientId",           -KJ },
-    { "orderId",            -KJ },
-    { "permId",             -KJ },
-    // Main Order Fields
-    { "action",             -KS },
-    { "auxPrice",           -KF },
-    { "lmtPrice",           -KF },
-    { "orderType",          -KS },
-    { "totalQuantity",      -KJ },
-    // Extended Order Fields
-    { "allOrNone",          -KB },
-    { "blockOrder",         -KB },
-    { "displaySize",        -KI },
-    { "goodAfterTime",      -KS },
-    { "goodTillDate",       -KS },
-    { "hidden",             -KB },
-    { "minQty",             -KI },
-    { "ocaType",            -KI },
-    { "orderRef",           -KS },
-    { "outsideRth",         -KB },
-    { "overridePercentageConstraints", -KB },
-    { "parentId",           -KJ },
-    { "percentOffset",      -KF },
-    { "rule80A",            -KS },
-    { "tif",                -KS },
-    { "sweepToFill",        -KB },
-    { "trailingPercent",    -KS },
-    { "trailStopPrice",     -KF },
-    { "transmit",           -KB },
-    { "triggerfunction",    -KI },
-    { "activeStartTime",    -KS },
-    { "activeStopTime",     -KS }
-};
+template<typename F> V setProperties(K dict, F &props, std::string &error);
 
 #endif

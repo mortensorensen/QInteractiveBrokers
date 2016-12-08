@@ -1,4 +1,4 @@
-qib:.Q.def[enlist[`appdir]!enlist`$"qib/app"] .Q.opt .z.x;
+qib:.Q.def[enlist[`appdir]!enlist`$"app"] .Q.opt .z.x;
 system"l ",string[qib`appdir],"/ib.q"
 
 out"Connecting"
@@ -8,26 +8,27 @@ $[.ib.isConnected[]; out"Connected"; [out"Not connected";exit 1]]
 out"Requesting current time"
 .ib.reqCurrentTime[]
 
-contract:`symbol`secType`exchange`currency!(`AAPL;`STK;`SMART;`USD)
+contract:`expiry`symbol`secType`exchange`currency!(2016.12m;`IBM;`STK;`SMART;`USD)
 
-out"Requesting mkt data"
-.ib.reqMktData[1;contract;"";0b]
+/ out"Requesting mkt data"
+/ .ib.reqMktData[1;contract;"";0b]
 
-showupd:{
-	out"Trades: ",string i`trade;
-	out"Quotes: ",string i`quote;
- };
+/ showupd:{
+/ 	out"Trades: ",string i`trade;
+/ 	out"Quotes: ",string i`quote;
+/  };
 
-.z.ts:showupd
+/ .z.ts:showupd
 
-if[not system"t";system"t 1500"];
+/ if[not system"t";system"t 1500"];
+
+out"Placing order"
+
+lmtOrder:`action`totalQuantity`orderType`lmtPrice!(`BUY;1000;`LMT;0.01)
+mktOrder:`action`totalQuantity`orderType!(`BUY;1000;`MKT)
+
+.ib.placeOrder[1^.ib.nextId;contract] lmtOrder
 
 \
-/ loadqib:{.ib::(x 2:(`LoadLibrary;1))`}
-loadqib `:build/Debug/qib.0.0.1
-.ib.connect[`$"127.0.0.1";7497;1]
-.ib.connect[`$"127.0.0.1";4001;1]
-.ib.disconnect[]
-.ib.isConnected[]
-.ib.reqCurrentTime[]
-.ib.reqMktData[1;`a`b`c!1 2 3;"";0b]
+.ib.placeOrder[.ib.nextId;contract] mktOrder
+

@@ -2,6 +2,7 @@
 #include "config.h"
 #include "IBClient.h"
 #include <sstream>
+#include <functional>
 
 #define streq(x, y) strcmp(x, y) == 0
 
@@ -122,7 +123,7 @@ K reqMktData(K tickerId, K contract, K genericTicks, K snapsnot)
     auto c = createContract(contract, error);
     Q(!error.empty(), error.c_str());
     
-    ib->reqMktData(tickerId->j, *c, "", snapsnot->i == 1);
+//    ib->reqMktData(tickerId->j, *c, "", snapsnot->i == 1);
     
     R NULL;
 }
@@ -147,7 +148,7 @@ K placeOrder(K id, K contract, K order)
     auto o = createOrder(order, error);
     Q(!error.empty(), error.c_str());
     
-    ib->placeOrder(id->j, *c, *o);
+    ib->placeOrder(id->j, c, o);
     R NULL;
 }
 
@@ -164,97 +165,91 @@ K cancelOrder(K id)
 // Static methods
 ////////////////////
 
-Z bool checkDictTypes(K dict, std::map<std::string, short> &propTypes, const char *&error)
+template<typename T> V setAtom(T *property, K x, G type, std::string &error)
 {
-    if (dict->t != XD) {
-        error = "argument must be a dict";
-        return false;
-    }
-    
-    K keys = kK(dict)[0];
-    K vals = kK(dict)[1];
-    
-    if (keys->t != KS) {
-        error = "keys must be syms";
-        return false;
-    }
-    
-    I type;
-    
-    for (I i = 0; i < keys->n; i++) {
-        auto key = kS(keys)[i];
-        auto search = propTypes.find(key);
-        if (search != propTypes.end()) {
-            type = vals->t == 0 ? kK(vals)[i]->t : -abs(vals->t);
-            if (type != search->second) {
-                std::stringstream ss;
-                ss << "Key " << key << ": Type " << type << " (expected " << search->second << ")\n";
-                error = ss.str().c_str();
-                return false;
-            }
-        }
-    }
-            
-    return true;
+    // Base case. Should never be called.
+    // TODO: Test and warn
 }
 
-ZV setAtom(V *property, K x)
+template<> V setAtom(bool *property, K x, G type, std::string &error)
 {
-    switch (xt) {
-        case  -1: *((bool*)property) = x->g == 1; break;
-        case  -4: *((C*)property) = x->g; break;
-        case  -5: *((H*)property) = x->h; break;
-        case  -6: *((I*)property) = x->i; break;
-        case  -7: *((J*)property) = x->j; break;
-        case  -8: *((E*)property) = x->e; break;
-        case  -9: *((F*)property) = x->f; break;
-        case -10: *((C*)property) = x->g; break;
-        case -11: *((IBString*)property) = x->s; break;
-        case -12: *((J*)property) = x->j; break;
-        case -13: *((I*)property) = x->i; break;
-        case -14: *((I*)property) = x->i; break;
-        case -15: *((F*)property) = x->f; break;
-        case -16: *((J*)property) = x->j; break;
-        case -17: *((I*)property) = x->i; break;
-        case -18: *((I*)property) = x->i; break;
-        case -19: *((I*)property) = x->i; break;
-        default: return;
+    SW(xt) {
+        CS(-1, *property = x->g ==1)
+        CD: R;
     }
 }
 
-V setItem(V *property, K x, I index)
+template<> V setAtom(int *property, K x, G type, std::string &error)
 {
-    switch (xt) {
-        case  0: setProperty(property, kK(x)[index], index); break;
-        case  1: setAtom(property, kb(kG(x)[index])); break;
-        case  4: setAtom(property, kg(kG(x)[index])); break;
-        case  5: setAtom(property, kh(kH(x)[index])); break;
-        case  6: setAtom(property, ki(kI(x)[index])); break;
-        case  7: setAtom(property, kj(kJ(x)[index])); break;
-        case  8: setAtom(property, ke(kE(x)[index])); break;
-        case  9: setAtom(property, kf(kF(x)[index])); break;
-        case 10: setAtom(property, kc(kC(x)[index])); break;
-        case 11: setAtom(property, ks(kS(x)[index])); break;
-        case 14: setAtom(property, kd(kI(x)[index])); break;
-        case 15: setAtom(property, kz(kF(x)[index])); break;
-        default: return;
+    SW(xt) {
+        CS(-KI, *property = x->i);
+        CD: R;
     }
 }
 
-V setProperty(V *property, K x, I index)
+template<> V setAtom(long *property, K x, G type, std::string &error)
 {
-    if (xt < 0) setAtom(property, x);
-    else if ((0 <= xt) && (xt < 20)) setItem(property, x, index);
+    SW(xt) {
+        CS(-KJ, *property = x->j);
+        CD: R;
+    }
+}
+
+template<> V setAtom(double *property, K x, G type, std::string &error)
+{
+    SW(xt) {
+        CS(-KF, *property = x->f);
+        CD: R;
+    }
+}
+
+template<> V setAtom(IBString *property, K x, G type, std::string &error)
+{
+    SW(xt) {
+        CS(-KS, *property = x->s);   // symbol
+        CS(-KM, *property = string_format("%04d%02d", (x->i)/12+2000, (x->i)%12+1));    // month
+        CS(-KD, *property = fmt_time("%Y%m%d", ((x->i) + 10957)*8.64e4, 0));    // date
+        CS(-KZ, *property = fmt_time("%Y%m%dD %H:%M:%S", ((x->f) + 10957)*8.64e4, 0));    // datetime
+        CD: R;
+    }
+}
+
+template<typename T>
+V setItem(T &property, I type, K x, I index, std::string &error)
+{
+    SW(xt) {
+        CS( 0, setProperty(property, type, kK(x)[index], index, error))
+        CS( 1, setAtom(property, kb(kG(x)[index]), type, error))
+        CS( 4, setAtom(property, kg(kG(x)[index]), type, error))
+        CS( 5, setAtom(property, kh(kH(x)[index]), type, error))
+        CS( 6, setAtom(property, ki(kI(x)[index]), type, error))
+        CS( 7, setAtom(property, kj(kJ(x)[index]), type, error))
+        CS( 8, setAtom(property, ke(kE(x)[index]), type, error))
+        CS( 9, setAtom(property, kf(kF(x)[index]), type, error))
+        CS(10, setAtom(property, kc(kC(x)[index]), type, error))
+        CS(11, setAtom(property, ks(kS(x)[index]), type, error))
+        CS(14, setAtom(property, kd(kI(x)[index]), type, error))
+        CS(15, setAtom(property, kz(kF(x)[index]), type, error))
+        CD: R;
+    }
+}
+
+template<typename T>
+V setProperty(T &property, I expectedType, K x, I index, std::string &error)
+{
+    I xtype = (0 <= xt) && (xt < 20) ? kK(x)[index]->t : xt;
+    if (xtype != expectedType) {
+        error = string_format("Invalid type: %i. Expected %i", xtype, expectedType);
+        return;
+    }
+    
+    if (xt < 0) setAtom(property, x, expectedType, error);
+    else if ((0 <= xt) && (xt < 20)) setItem(property, expectedType, x, index, error);
     else return;
 }
 
-V setProperties(K dict, std::map<std::string, void*> props, std::string &error)
+V setProperties(K dict, std::map<std::string, std::function<void(K x, I i, std::string &err)>> &props, std::string &error)
 {
-    if (dict->t != XD) {
-        error = "type";
-        return;
-    }
-    
     K keys = kK(dict)[0];
     K vals = kK(dict)[1];
     
@@ -263,85 +258,86 @@ V setProperties(K dict, std::map<std::string, void*> props, std::string &error)
         return;
     }
     
-    std::map<std::string, void*>::const_iterator it;
-    std::string key;
+    const char *key;
     
     for (I i = 0; i < keys->n; i++) {
         key = kS(keys)[i];
-        it = props.find(key);
+        
+        auto it = props.find(key);
         if (it != props.end()) {
-            setProperty(it->second, vals, i);
+            (it->second)(vals, i, error);
+            if (!error.empty()) return;
         } else {
-            error = "Property " + key + " not recognized\n";
+            // TODO: error
         }
     }
 }
 
-Z Contract *createContract(K dict, std::string &error)
+auto f = [](auto property, I expectedType, K x, I index, std::string &error) {
+    return setProperty(property, expectedType, x, index, error);
+};
+
+Z Contract createContract(K dict, std::string &error)
 {
-    auto c = new Contract();
-    auto props = std::map<std::string, void*> {
-        { "conId",          &c->conId },
-        { "currency",       &c->currency },
-        { "exchange",       &c->exchange },
-        { "expiry",         &c->expiry },
-        { "includeExpired", &c->includeExpired },
-        { "localSymbol",    &c->localSymbol },
-        { "multiplier",     &c->multiplier },
-        { "primaryExchange",&c->primaryExchange },
-        { "right",          &c->right },
-        { "secId",          &c->secId },
-        { "secType",        &c->secType },
-        { "strike",         &c->strike },
-        { "symbol",         &c->symbol },
-        { "tradingClass",   &c->tradingClass }
+    Contract c;
+    auto map = new std::map<std::string, std::function<void(K x, I i, std::string &err)>> {
+        { "conId",          partial(f, &c.conId,        -KI) },
+        { "currency",       partial(f, &c.currency,     -KS) },
+        { "exchange",       partial(f, &c.exchange,     -KS) },
+        { "expiry",         partial(f, &c.expiry,       -KM) },
+        { "includeExpired", partial(f, &c.includeExpired, -KB) },
+        { "localSymbol",    partial(f, &c.localSymbol,  -KS) },
+        { "multiplier",     partial(f, &c.multiplier,   -KS) },
+        { "primaryExchange",partial(f, &c.primaryExchange, -KS) },
+        { "right",          partial(f, &c.right,        -KS) },
+        { "secId",          partial(f, &c.secId,        -KS) },
+        { "secType",        partial(f, &c.secType,      -KS) },
+        { "strike",         partial(f, &c.strike,       -KF) },
+        { "symbol",         partial(f, &c.symbol,       -KS) },
+        { "tradingClass",   partial(f, &c.tradingClass, -KS) }
     };
-    
-    setProperties(dict, props, error);
-    
+    setProperties(dict, *map, error);
     R c;
 }
 
-Z Order *createOrder(K dict, std::string &error)
+Z Order createOrder(K dict, std::string &error)
 {
-    auto o = new Order();
-    auto props = std::map<std::string, void*> {
+    Order o;
+    auto map = new std::map<std::string, std::function<void(K x, I i, std::string &err)>> {
         // Order Identifiers
-        { "clienId",        &o->clientId },
-        { "orderId",        &o->orderId },
-        { "permId",         &o->permId },
+        { "clientId",       partial(f, &o.clientId,     -KJ) },
+        { "orderId",        partial(f, &o.orderId,      -KJ) },
+        { "permId",         partial(f, &o.permId,       -KJ) },
         // Main Order Fields
-        { "action",         &o->action },
-        { "auxPrice",       &o->auxPrice },
-        { "lmtPrice",       &o->lmtPrice },
-        { "orderType",      &o->orderType },
-        { "totalQuantity",  &o->totalQuantity },
+        { "action",         partial(f, &o.action,       -KS) },
+        { "auxPrice",       partial(f, &o.auxPrice,     -KF) },
+        { "lmtPrice",       partial(f, &o.lmtPrice,     -KF) },
+        { "orderType",      partial(f, &o.orderType,    -KS) },
+        { "totalQuantity",  partial(f, &o.totalQuantity, -KJ) },
         // Extended Order Fields
-        { "allOrNone",      &o->allOrNone },
-        { "blockOrder",     &o->blockOrder },
-        { "displaySize",    &o->displaySize },
-        { "goodAfterTime",  &o->goodAfterTime },
-        { "goodTillDate",   &o->goodTillDate },
-        { "hidden",         &o->hidden },
-        { "minQty",         &o->minQty },
-        { "ocaGroup",       &o->ocaGroup },
-        { "orderRef",       &o->orderRef },
-        { "outsideRth",     &o->outsideRth },
-        { "overridePercentageConstraints", &o->overridePercentageConstraints },
-        { "parentId",       &o->parentId },
-        { "percentOffset",  &o->percentOffset },
-        { "rule80A",        &o->rule80A },
-        { "tif",            &o->tif },
-        { "sweepToFill",    &o->sweepToFill },
-        { "trailingPercent",&o->trailingPercent },
-        { "trailStopPrice", &o->trailStopPrice },
-        { "transmit",       &o->transmit },
-        { "triggerMethod",  &o->triggerMethod },
-        { "activeStartTime",&o->activeStartTime },
-        { "activeStopTime", &o->activeStopTime }
+        { "allOrNone",      partial(f, &o.allOrNone,    -KB) },
+        { "blockOrder",     partial(f, &o.blockOrder,   -KB) },
+        { "displaySize",    partial(f, &o.displaySize,  -KI) },
+        { "goodAfterTime",  partial(f, &o.goodAfterTime, -KZ) },
+        { "goodTilDate",    partial(f, &o.goodTillDate, -KZ) },
+        { "hidden",         partial(f, &o.hidden,       -KB) },
+        { "minQty",         partial(f, &o.minQty,       -KI) },
+        { "ocaGroup",       partial(f, &o.ocaGroup,     -KS) },
+        { "orderRef",       partial(f, &o.orderRef,     -KS) },
+        { "outsideRth",     partial(f, &o.outsideRth,   -KB) },
+        { "overridePercentageConstraints", partial(f, &o.overridePercentageConstraints, -KB) },
+        { "parentId",       partial(f, &o.parentId,     -KJ) },
+        { "percentOffset",  partial(f, &o.percentOffset,-KF) },
+        { "rule80A",        partial(f, &o.rule80A,      -KS) },
+        { "tif",            partial(f, &o.tif,          -KS) },
+        { "sweepToFill",    partial(f, &o.sweepToFill,  -KB) },
+        { "trailingPercent",partial(f, &o.trailingPercent, -KF) },
+        { "trailingStopPrice", partial(f, &o.trailStopPrice, -KF) },
+        { "transmit",       partial(f, &o.transmit,     -KB) },
+        { "triggerMethod",  partial(f, &o.triggerMethod,-KI) },
+        { "activeStartTime",partial(f, &o.activeStartTime, -KZ) },
+        { "activeStopTime", partial(f, &o.activeStopTime, -KZ) }
     };
-    
-    setProperties(dict, props, error);
-
+    setProperties(dict, *map, error);
     R o;
 }
