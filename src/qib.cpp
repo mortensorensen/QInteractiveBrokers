@@ -2,9 +2,7 @@
 #include "config.h"
 #include "IBClient.h"
 #include <sstream>
-#include <functional>
-
-#define streq(x, y) strcmp(x, y) == 0
+#include <typeinfo>
 
 IBClient *ib;
 
@@ -52,16 +50,16 @@ K LoadLibrary(K x)
     O("compiler flags »%-5s\n",         BUILD_COMPILER_FLAGS);
     O("\n");
 
-    auto map = std::map<const char*, std::pair<void*, unsigned short> > {
-        { "version",        { (void*)version,           1 } },
-        { "connect",        { (void*)connect,           3 } },
-        { "disconnect",     { (void*)disconnect,        1 } },
-        { "isConnected",    { (void*)isConnected,       1 } },
-        { "reqCurrentTime", { (void*)reqCurrentTime,    1 } },
-        { "reqMktData",     { (void*)reqMktData,        4 } },
-        { "reqAccountUpdates", { (void*)reqAccountUpdates, 2 } },
-        { "placeOrder",     { (void*)placeOrder,        3 } },
-        { "cancelOrder",    { (void*)cancelOrder,       1 } }
+    auto map = std::map<const char*, std::pair<V*, H> > {
+        { "version",        { (V*)version,           1 } },
+        { "connect",        { (V*)connect,           3 } },
+        { "disconnect",     { (V*)disconnect,        1 } },
+        { "isConnected",    { (V*)isConnected,       1 } },
+        { "reqCurrentTime", { (V*)reqCurrentTime,    1 } },
+        { "reqMktData",     { (V*)reqMktData,        4 } },
+        { "reqAccountUpdates", { (V*)reqAccountUpdates, 2 } },
+        { "placeOrder",     { (V*)placeOrder,        3 } },
+        { "cancelOrder",    { (V*)cancelOrder,       1 } }
     };
 
     K keys = ktn(KS, 0);
@@ -123,7 +121,7 @@ K reqMktData(K tickerId, K contract, K genericTicks, K snapsnot)
     auto c = createContract(contract, error);
     Q(!error.empty(), error.c_str());
     
-//    ib->reqMktData(tickerId->j, *c, "", snapsnot->i == 1);
+    ib->reqMktData(tickerId->j, c, "", snapsnot->i == 1);
     
     R NULL;
 }
@@ -165,17 +163,24 @@ K cancelOrder(K id)
 // Static methods
 ////////////////////
 
+template<typename T> std::string typeError(T *property, G expectedType)
+{
+    R stringFormat("Type %s not handled. Expected type id %s",
+                   typeid(T).name(),
+                   reinterpret_cast<char*>(expectedType));
+}
+
 template<typename T> V setAtom(T *property, K x, G type, std::string &error)
 {
     // Base case. Should never be called.
-    // TODO: Test and warn
+    error = typeError(property, type);
 }
 
 template<> V setAtom(bool *property, K x, G type, std::string &error)
 {
     SW(xt) {
         CS(-1, *property = x->g ==1)
-        CD: R;
+        CD: typeError(property, type);
     }
 }
 
@@ -183,7 +188,7 @@ template<> V setAtom(int *property, K x, G type, std::string &error)
 {
     SW(xt) {
         CS(-KI, *property = x->i);
-        CD: R;
+        CD: typeError(property, type);
     }
 }
 
@@ -191,7 +196,7 @@ template<> V setAtom(long *property, K x, G type, std::string &error)
 {
     SW(xt) {
         CS(-KJ, *property = x->j);
-        CD: R;
+        CD: typeError(property, type);
     }
 }
 
@@ -199,18 +204,18 @@ template<> V setAtom(double *property, K x, G type, std::string &error)
 {
     SW(xt) {
         CS(-KF, *property = x->f);
-        CD: R;
+        CD: typeError(property, type);
     }
 }
 
 template<> V setAtom(IBString *property, K x, G type, std::string &error)
 {
     SW(xt) {
-        CS(-KS, *property = x->s);   // symbol
-        CS(-KM, *property = string_format("%04d%02d", (x->i)/12+2000, (x->i)%12+1));    // month
-        CS(-KD, *property = fmt_time("%Y%m%d", ((x->i) + 10957)*8.64e4, 0));    // date
-        CS(-KZ, *property = fmt_time("%Y%m%dD %H:%M:%S", ((x->f) + 10957)*8.64e4, 0));    // datetime
-        CD: R;
+        CS(-KS, *property = x->s);                                                          // symbol
+        CS(-KM, *property = stringFormat("%04d%02d", (x->i)/12+2000, (x->i)%12+1));         // month
+        CS(-KD, *property = formatTime("%Y%m%d", ((x->i) + 10957)*8.64e4, 0));              // date
+        CS(-KZ, *property = formatTime("%Y%m%dD %H:%M:%S", ((x->f) + 10957)*8.64e4, 0));    // datetime
+        CD: typeError(property, type);
     }
 }
 
@@ -239,48 +244,48 @@ V setProperty(T &property, I expectedType, K x, I index, std::string &error)
 {
     I xtype = (0 <= xt) && (xt < 20) ? kK(x)[index]->t : xt;
     if (xtype != expectedType) {
-        error = string_format("Invalid type: %i. Expected %i", xtype, expectedType);
-        return;
+        error = stringFormat("Invalid type: %i. Expected %i", xtype, expectedType);
+        R;
     }
     
     if (xt < 0) setAtom(property, x, expectedType, error);
     else if ((0 <= xt) && (xt < 20)) setItem(property, expectedType, x, index, error);
-    else return;
+    else R;
 }
 
-V setProperties(K dict, std::map<std::string, std::function<void(K x, I i, std::string &err)>> &props, std::string &error)
+V setProperties(K dict, std::map<std::string, std::function<V(K x, I i, std::string &err)>> &props, std::string &error)
 {
     K keys = kK(dict)[0];
     K vals = kK(dict)[1];
     
     if (keys->t != KS) {
         error = "keys must be syms";
-        return;
+        R;
     }
     
-    const char *key;
-    
+    std::string key;
     for (I i = 0; i < keys->n; i++) {
         key = kS(keys)[i];
         
         auto it = props.find(key);
         if (it != props.end()) {
             (it->second)(vals, i, error);
-            if (!error.empty()) return;
+            if (!error.empty()) R;
         } else {
-            // TODO: error
+            error = "Key not recognized: " + key;
+            R;
         }
     }
 }
 
 auto f = [](auto property, I expectedType, K x, I index, std::string &error) {
-    return setProperty(property, expectedType, x, index, error);
+    R setProperty(property, expectedType, x, index, error);
 };
 
 Z Contract createContract(K dict, std::string &error)
 {
     Contract c;
-    auto map = new std::map<std::string, std::function<void(K x, I i, std::string &err)>> {
+    auto map = new std::map<std::string, std::function<V(K x, I i, std::string &err)>> {
         { "conId",          partial(f, &c.conId,        -KI) },
         { "currency",       partial(f, &c.currency,     -KS) },
         { "exchange",       partial(f, &c.exchange,     -KS) },
@@ -303,7 +308,7 @@ Z Contract createContract(K dict, std::string &error)
 Z Order createOrder(K dict, std::string &error)
 {
     Order o;
-    auto map = new std::map<std::string, std::function<void(K x, I i, std::string &err)>> {
+    auto map = new std::map<std::string, std::function<V(K x, I i, std::string &err)>> {
         // Order Identifiers
         { "clientId",       partial(f, &o.clientId,     -KJ) },
         { "orderId",        partial(f, &o.orderId,      -KJ) },

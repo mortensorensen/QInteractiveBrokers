@@ -92,3 +92,51 @@ tickmap:1!flip `field`table`column!flip 3 cut (
 .ib.reg[`updateAccountTime] {[ts]
 	out"updateAccountTime"
  };
+
+.ib.reg[`openOrder] {[dict]
+	out"openOrder"
+ };
+
+.ib.reg[`updateMktDepth] {[id;position;operation;side;price;size]
+	out"updateMktDepth"
+ };
+
+.ib.reg[`updateMktDepthL2] {[id;position;marketmaker;operation;side;price;size]
+	out"updateMktDepthL2"
+ };
+
+.ib.reg[`realtimeBar] {[dict]
+	out"realtimeBar"
+ };
+
+.ib.reg[`position] {[account;conId;position;avgCost]
+	out"position"
+ };
+
+.ib.reg[`positionEnd] {
+	out"positionEnd"
+ };
+
+.ib.reg[`accountSummary] {[reqId;account;tag;val;ccy]
+	out"accountSummary"
+ };
+
+.ib.reg[`accountSummaryEnd] {[reqId]
+	out"accountSummaryEnd"
+ };
+
+.ib.reg[`execDetails] {[reqId;contractId;execution]
+	out"execDetails"
+ };
+
+.ib.reg[`execDetailsEnd] {[reqId]
+	out"execDetailsEnd"
+ };
+
+.ib.reg[`fundamentalData] {[reqId;data]
+	out"fundamentalData"
+ };
+
+.ib.reg[`tickSnapshotEnd] {[reqId]
+	out"tickSnapshotEnd"
+ };
