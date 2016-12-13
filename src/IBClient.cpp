@@ -10,7 +10,7 @@
 /////////////////////////////////////////////
 
 IBClient::IBClient()
-    : m_pClient(new EPosixClientSocket(this))
+    : socket(new EPosixClientSocket(this))
 {
 }
 
@@ -20,28 +20,28 @@ IBClient::~IBClient()
 
 bool IBClient::connect(const char *host, unsigned int port, int clientId)
 {
-    return m_pClient->eConnect(host, port, clientId, false);
+    return socket->eConnect(host, port, clientId, false);
 }
 
 void IBClient::disconnect() const
 {
     sd0(fd());
-    m_pClient->eDisconnect();
+    socket->eDisconnect();
 }
 
 bool IBClient::isConnected() const
 {
-    return m_pClient->isConnected();
+    return socket->isConnected();
 }
 
 int IBClient::fd() const
 {
-    return m_pClient->fd();
+    return socket->fd();
 }
 
 void IBClient::onReceive()
 {
-    m_pClient->onReceive();
+    socket->onReceive();
 }
 
 void IBClient::receiveData(const char *fun, K x)
@@ -62,28 +62,28 @@ void IBClient::receiveData(const char *fun, K x)
 
 void IBClient::reqCurrentTime()
 {
-    m_pClient->reqCurrentTime();
+    socket->reqCurrentTime();
 }
 
 void IBClient::reqMktData(TickerId id, const Contract &contract, const std::string &genericTicks, bool snapshot)
 {
     TagValueListSPtr tag;
-    m_pClient->reqMktData(id, contract, genericTicks, snapshot, tag);
+    socket->reqMktData(id, contract, genericTicks, snapshot, tag);
 }
 
 void IBClient::reqAccountUpdates(bool subscribe, const char *acctCode)
 {
-    m_pClient->reqAccountUpdates(subscribe, acctCode);
+    socket->reqAccountUpdates(subscribe, acctCode);
 }
 
 void IBClient::placeOrder(OrderId id, const Contract &contract, const Order &order)
 {
-    m_pClient->placeOrder(id, contract, order);
+    socket->placeOrder(id, contract, order);
 }
 
 void IBClient::cancelOrder(OrderId id)
 {
-    m_pClient->cancelOrder(id);
+    socket->cancelOrder(id);
 }
 
 /////////////////////////////////////////////
@@ -117,6 +117,7 @@ void IBClient::error(const int id, const int errorCode, const IBString errorStri
     
     // Exception caught while reading socket - Connection reset by peer
     if (id == -1 && errorCode == 509) {
+        O("Connection reset by peer\n");
         disconnect();
     }
 }
@@ -326,12 +327,12 @@ void IBClient::execDetailsEnd(int reqId)
     receiveData("execDetailsEnd", ki(reqId));
 }
 
-void IBClient::fundamentalData(TickerId reqId, const IBString& data)
+void IBClient::fundamentalData(TickerId reqId, const IBString &data)
 {
     receiveData("fundamentalData", knk(2, kj(reqId), kp((S)data.c_str())));
 }
 
-void IBClient::commissionReport( const CommissionReport& commissionReport)
+void IBClient::commissionReport(const CommissionReport &commissionReport)
 {
     auto dict = createDictionary(std::map<std::string, K> {
         { "commission",             kf(commissionReport.commission) },
@@ -347,4 +348,119 @@ void IBClient::commissionReport( const CommissionReport& commissionReport)
 void IBClient::tickSnapshotEnd(int reqId)
 {
     receiveData("tickSnapshotEnd", ki(reqId));
+}
+
+void IBClient::accountDownloadEnd(const IBString &accountName)
+{
+    receiveData("accountDownloadEnd", kp((S)accountName.c_str()));
+}
+
+void IBClient::openOrder(OrderId orderId, const Contract &contract, const Order &order, const OrderState &orderState)
+{
+    auto state = createDictionary(std::map<std::string, K> {
+        { "commission",     kf(orderState.commission) },
+        { "commissionCurrency", ks((S)orderState.commissionCurrency.c_str()) },
+        { "equityWithLoan", kp((S)orderState.equityWithLoan.c_str()) },
+        { "initMargin",     kp((S)orderState.initMargin.c_str()) },
+        { "maintMargin",    kp((S)orderState.maintMargin.c_str()) },
+        { "maxCommission",  kf(orderState.maxCommission) },
+        { "minCommission",  kf(orderState.minCommission) },
+        { "status",         kp((S)orderState.status.c_str()) },
+        { "warningText",    kp((S)orderState.warningText.c_str()) }
+    });
+    receiveData("openOrder", knk(3,
+                                 kj(orderId),
+                                 kj(contract.conId),
+                                 state));
+}
+
+void IBClient::openOrderEnd()
+{
+    receiveData("openOrderEnd", ks((S)""));
+}
+
+void IBClient::marketDataType(TickerId reqId, int marketDataType)
+{
+    receiveData("marketDataType", knk(2, kj(reqId), ki(marketDataType)));
+}
+
+void IBClient::historicalData(TickerId reqId, const IBString &date, double open, double high, double low, double close, int volume, int barCount, double WAP, int hasGaps)
+{
+    auto dict = createDictionary(std::map<std::string, K> {
+        { "reqId",  kj(reqId) },
+        { "date",   ks((S)date.c_str()) },
+        { "open",   kf(open) },
+        { "high",   kf(high) },
+        { "low",    kf(low) },
+        { "close",  kf(close) },
+        { "volume", ki(volume) },
+        { "barCount", ki(barCount) },
+        { "WAP",    kf(WAP) },
+        { "hasGaps", kb(hasGaps != 0) }
+    });
+    receiveData("historicalData", dict);
+}
+
+void IBClient::scannerParameters(const IBString &xml)
+{
+    receiveData("scannerParameters", kp((S)xml.c_str()));
+}
+
+void IBClient::winError(const IBString &str, int lastError)
+{
+    receiveData("winError", knk(2, kp((S)str.c_str()), ki(lastError)));
+}
+
+void IBClient::updateNewsBulletin(int msgId, int msgType, const IBString &newsMessage, const IBString &originExch)
+{
+    receiveData("updateNewsBulletin", knk(4,
+                                          ki(msgId),
+                                          ki(msgType),
+                                          kp((S)newsMessage.c_str()),
+                                          kp((S)originExch.c_str())));
+}
+
+void IBClient::managedAccounts(const IBString &accountsList)
+{
+    receiveData("managedAccounts", kp((S)accountsList.c_str()));
+}
+
+void IBClient::deltaNeutralValidation(int reqId, const UnderComp &underComp)
+{
+    auto dict = createDictionary(std::map<std::string, K> {
+        { "conId",  kj(underComp.conId) },
+        { "delta",  kf(underComp.delta) },
+        { "price",  kf(underComp.price) }
+    });
+    receiveData("deltaNeutralValidation", knk(2, ki(reqId), dict));
+}
+
+void IBClient::scannerDataEnd(int reqId)
+{
+    receiveData("scannerDataEnd", ki(reqId));
+}
+
+void IBClient::contractDetailsEnd(int reqId)
+{
+    receiveData("contractDetailsEnd", ki(reqId));
+}
+
+void IBClient::verifyMessageAPI(const IBString &apiData)
+{
+    receiveData("verifyMessageAPI", kp((S)apiData.c_str()));
+}
+
+void IBClient::verifyCompleted(bool isSuccessful, const IBString &errorText)
+{
+    receiveData("verifyCompleted", knk(2, kb(isSuccessful), kp((S)errorText.c_str())));
+}
+
+void IBClient::displayGroupList(int reqId, const IBString &groups)
+{
+    receiveData("displayGroupList", knk(2, ki(reqId), kp((S)groups.c_str())));
+}
+
+void IBClient::displayGroupUpdated(int reqId, const IBString &contractInfo)
+{
+    receiveData("displayGroupUpdated", knk(2, ki(reqId), kp((S)contractInfo.c_str())));
 }

@@ -21,20 +21,12 @@ ZV destroy_api() {
 
 K version(K x)
 {
-    K keys = ktn(KS, 4);
-    K vals = ktn(KS, 4);
-
-    kS(keys)[0] = ss((S) "release");
-    kS(keys)[1] = ss((S) "os");
-    kS(keys)[2] = ss((S) "tws");
-    kS(keys)[3] = ss((S) "kx");
-
-    kS(vals)[0] = ss((S) BUILD_PROJECT_VERSION);
-    kS(vals)[1] = ss((S) BUILD_OPERATING_SYSTEM);
-    kS(vals)[2] = ss((S) BUILD_TWS_VER);
-    kS(vals)[3] = ss((S) BUILD_KX_VER);
-
-    R xD(keys, vals);
+    R createDictionary(std::map<std::string, K> {
+        { "release",    ks((S) BUILD_PROJECT_VERSION) },
+        { "os",         ks((S) BUILD_OPERATING_SYSTEM) },
+        { "tws",        ks((S) BUILD_TWS_VER) },
+        { "kx",         ks((S) BUILD_KX_VER) }
+    });
 }
 
 K LoadLibrary(K x)
@@ -50,26 +42,18 @@ K LoadLibrary(K x)
     O("compiler flags »%-5s\n",         BUILD_COMPILER_FLAGS);
     O("\n");
 
-    auto map = std::map<const char*, std::pair<V*, H> > {
-        { "version",        { (V*)version,           1 } },
-        { "connect",        { (V*)connect,           3 } },
-        { "disconnect",     { (V*)disconnect,        1 } },
-        { "isConnected",    { (V*)isConnected,       1 } },
-        { "reqCurrentTime", { (V*)reqCurrentTime,    1 } },
-        { "reqMktData",     { (V*)reqMktData,        4 } },
-        { "reqAccountUpdates", { (V*)reqAccountUpdates, 2 } },
-        { "placeOrder",     { (V*)placeOrder,        3 } },
-        { "cancelOrder",    { (V*)cancelOrder,       1 } }
-    };
-
-    K keys = ktn(KS, 0);
-    K vals = knk(0);
-    for (auto it = map.begin(); it != map.end(); ++it) {
-        js(&keys, ss((S)it->first));
-        jk(&vals, dl(it->second.first, it->second.second));
-    }
-
-    R xD(keys, vals);
+    auto dict = createDictionary(std::map<std::string, K> {
+        { "version",        dl((V*) version,         1) },
+        { "connect",        dl((V*) connect,         3) },
+        { "disconnect",     dl((V*) disconnect,      1) },
+        { "isConnected",    dl((V*) isConnected,     1) },
+        { "reqCurrentTime", dl((V*) reqCurrentTime,  1) },
+        { "reqMktData",     dl((V*) reqMktData,      4) },
+        { "reqAccountUpdates", dl((V*) reqAccountUpdates, 2) },
+        { "placeOrder",     dl((V*) placeOrder,      3) },
+        { "cancelOrder",    dl((V*) cancelOrder,     1) }
+    });
+    R dict;
 }
 
 K eventLoop(I fd)
@@ -242,7 +226,7 @@ V setItem(T &property, I type, K x, I index, std::string &error)
 template<typename T>
 V setProperty(T &property, I expectedType, K x, I index, std::string &error)
 {
-    I xtype = (0 <= xt) && (xt < 20) ? kK(x)[index]->t : xt;
+    I xtype = (0 < xt) && (xt < 20) ? -xt : kK(x)[index]->t;
     if (xtype != expectedType) {
         error = stringFormat("Invalid type: %i. Expected %i", xtype, expectedType);
         R;
@@ -259,7 +243,7 @@ V setProperties(K dict, std::map<std::string, std::function<V(K x, I i, std::str
     K vals = kK(dict)[1];
     
     if (keys->t != KS) {
-        error = "keys must be syms";
+        error = "Keys must be syms";
         R;
     }
     
@@ -285,7 +269,7 @@ auto f = [](auto property, I expectedType, K x, I index, std::string &error) {
 Z Contract createContract(K dict, std::string &error)
 {
     Contract c;
-    auto map = new std::map<std::string, std::function<V(K x, I i, std::string &err)>> {
+    auto map = new std::map<std::string, std::function<V(K, I, std::string&)>> {
         { "conId",          partial(f, &c.conId,        -KI) },
         { "currency",       partial(f, &c.currency,     -KS) },
         { "exchange",       partial(f, &c.exchange,     -KS) },
@@ -308,7 +292,7 @@ Z Contract createContract(K dict, std::string &error)
 Z Order createOrder(K dict, std::string &error)
 {
     Order o;
-    auto map = new std::map<std::string, std::function<V(K x, I i, std::string &err)>> {
+    auto map = new std::map<std::string, std::function<V(K, I, std::string&)>> {
         // Order Identifiers
         { "clientId",       partial(f, &o.clientId,     -KJ) },
         { "orderId",        partial(f, &o.orderId,      -KJ) },
@@ -341,7 +325,18 @@ Z Order createOrder(K dict, std::string &error)
         { "transmit",       partial(f, &o.transmit,     -KB) },
         { "triggerMethod",  partial(f, &o.triggerMethod,-KI) },
         { "activeStartTime",partial(f, &o.activeStartTime, -KZ) },
-        { "activeStopTime", partial(f, &o.activeStopTime, -KZ) }
+        { "activeStopTime", partial(f, &o.activeStopTime, -KZ) },
+        // Financial Advisor Fields
+        { "designatedLocation", partial(f, &o.designatedLocation, -KS) },
+        { "openClose",      partial(f, &o.openClose,    -KS) },
+        { "origin",         partial(f, &o.origin,       -KI) },
+        { "shortSaleSlot",  partial(f, &o.shortSaleSlot, -KI) },
+        // SMART Routing Only
+        { "discretionaryAmt", partial(f, &o.discretionaryAmt, -KF) },
+        { "eTradeOnly",     partial(f, &o.eTradeOnly,   -KB) },
+        { "firmQuoteOnly",  partial(f, &o.firmQuoteOnly,-KB) },
+        { "nbboPriceCap",   partial(f, &o.nbboPriceCap, -KF) },
+        { "optOutSmartRouting", partial(f, &o.optOutSmartRouting, -KB) }
     };
     setProperties(dict, *map, error);
     R o;

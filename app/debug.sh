@@ -1,3 +1,3 @@
 #!/bin/bash
 DIR="$(cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd)"
-${QBIN} ${DIR}/debug.q -appdir ${DIR} -p 5000
+rlwrap ${QBIN} ${DIR}/debug.q -appdir ${DIR} -p 5000

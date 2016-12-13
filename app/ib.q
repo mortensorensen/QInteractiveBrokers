@@ -1,7 +1,7 @@
 out:{-1 string[.z.Z]," ",x;}
 
 .ib:(`:build/Debug/qib.0.0.1 2:(`LoadLibrary;1))`
-.ib.onrecv:{[fname;args] $[null code:.ib.callbacks[fname];.ib.unknown[fname;args];code . (),args]}
+.ib.onrecv:{[fname;args] if[null func:.ib.callbacks[fname];func:.ib.unknown];eval enlist[func],args};
 .ib.callbacks:()!()
 .ib.unknown:{[fname;args] out" unknown function ",(string fname),", args: ";0N!args}
 .ib.reg:{[fname;code] @[`.ib.callbacks;fname;:;code];}
@@ -77,6 +77,10 @@ tickmap:1!flip `field`table`column!flip 3 cut (
 	out"tickEFP"
  };
 
+.ib.reg[`orderStatus] {[dict]
+	out"orderStatus"
+ };
+
 .ib.reg[`tickOptionComputation] {[dict]
 	out"tickOptionComputation"
  };
@@ -139,4 +143,68 @@ tickmap:1!flip `field`table`column!flip 3 cut (
 
 .ib.reg[`tickSnapshotEnd] {[reqId]
 	out"tickSnapshotEnd"
+ };
+
+.ib.reg[`accountDownloadEnd] {[accountName]
+	out"accountDownloadEnd"
+ };
+
+.ib.reg[`openOrder] {[orderId;contractId;state]
+	out"openOrder"
+ };
+
+.ib.reg[`openOrderEnd] {
+	out"openOrderEnd"
+ };
+
+.ib.reg[`marketDataType] {[reqId;marketDataType]
+	out"marketDataType"
+ };
+
+.ib.reg[`historicalData] {[dict]
+	out"historicalData"
+ };
+
+.ib.reg[`scannerParameters] {[xml]
+	out"scannerParameters"
+ };
+
+.ib.reg[`winError] {[str;lastError]
+	out"winError"
+ };
+
+.ib.reg[`updateNewsBulletin] {[msgId;msgType;newsMessage;originExch]
+	out"updateNewsBulletin"
+ };
+
+.ib.reg[`managedAccounts] {[accountsList]
+	out"managedAccounts: ",accountsList
+ };
+
+.ib.reg[`deltaNeutralValidation] {[reqId;underComp]
+	out"deltaNeutralValidation"
+ };
+
+.ib.reg[`scannerDataEnd] {[reqId]
+	out"scannerDataEnd"
+ };
+
+.ib.reg[`contractDetailsEnd] {[reqId]
+	out"contractDetailsEnd"
+ };
+
+.ib.reg[`verifyMessageAPI] {[apiData]
+	out"verifyMessageAPI"
+ };
+
+.ib.reg[`verifyCompleted] {[succesful;errorText]
+	out"verifyCompleted"
+ };
+
+.ib.reg[`displayGroupList] {[reqId;groups]
+	out"displayGroupList"
+ };
+
+.ib.reg[`displayGroupUpdated] {[reqId;contractInfo]
+	out"displayGroupUpdated"
  };
