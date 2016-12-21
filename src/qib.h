@@ -8,16 +8,61 @@
 
 extern "C"
 {
-    K version(K x);
-    K LoadLibrary(K x);
+    K version(K ignore);
+    K LoadLibrary(K ignore);
     K connect(K host, K port, K clientId);
-    K disconnect(K x);
-    K isConnected(K x);
-    K reqCurrentTime(K x);
-    K reqMktData(K conId, K contract, K genericTicks, K snapsnot);
-    K reqAccountUpdates(K subscribe, K acctCode);
+    K disconnect(K ignore);
+    K isConnected(K ignore);
+    
+    K calculateImpliedVolatility(K reqId, K contract, K optionPrice, K underPrice);
+    K calculateOptionPrice( K reqId, K contract, K volatility, K underPrice);
+    K cancelAccountSummary(K reqId);
+    K cancelCalculateImpliedVolatility(K reqId);
+    K cancelCalculateOptionPrice(K reqId);
+    K cancelFundamentalData(K reqId);
+    K cancelHistoricalData(K tickerId);
+    K cancelMktData( K id);
+    K cancelMktDepth(K tickerId);
+    K cancelNewsBulletins(K ignore);
+    K cancelOrder(K id) ;
+    K cancelPositions(K ignore);
+    K cancelRealTimeBars(K  tickerId);
+    K cancelScannerSubscription(K tickerId);
+    K checkMessages(K ignore);
+    K exerciseOptions(K tickerId, K contract, K exerciseAction,  K exerciseQuantity, K account, K override);
     K placeOrder(K id, K contract, K order);
-    K cancelOrder(K id);
+    K queryDisplayGroups( K reqId);
+    K replaceFA(K pFaDataType, K cxml);
+    K reqAccountSummary(K reqId, K groupName, K tags);
+    K reqAccountUpdates(K subscribe, K acctCode);
+    K reqAllOpenOrders(K ignore);
+    K reqAutoOpenOrders(K bAutoBind);
+    K reqContractDetails(K reqId, K contract);
+    K reqCurrentTime(K ignore);
+    K reqExecutions(K reqId, K filter);
+    K reqFundamentalData(K reqId, K contract, K reportType);
+    K reqGlobalCancel(K ignore);
+    K reqHistoricalData(K dict);
+    K reqIds(K numIds);
+    K reqManagedAccts(K ignore);
+    K reqMarketDataType(K marketDataType);
+    K reqMktData(K id, K contract, K genericTicks, K snapshot);
+    K reqMktDepth(K tickerId, K contract, K numRows, K mktDepthOptions);
+    K reqNewsBulletins(K allMsgs);
+    K reqOpenOrders(K ignore);
+    K reqPositions(K ignore);
+    K reqRealTimeBars(K id, K contract, K barSize, K whatToShow, K useRTH, K realTimeBarsOptions);
+    K reqScannerParameters(K ignore);
+    K reqScannerSubscription(K tickerId, K subscription, K scannerSubscriptionOptions);
+    K requestFA(K pFaDataType);
+    K serverVersion(K ignore);
+    K setServerLogLevel(K level);
+    K subscribeToGroupEvents(K reqId, K groupId);
+    K TwsConnectionTime(K ignore);
+    K unsubscribeFromGroupEvents(K reqId);
+    K updateDisplayGroup(K reqId, K contractInfo);
+    K verifyMessage(K apiData);
+    K verifyRequest(K apiName, K apiVersion);
 }
 
 Z Contract createContract(K dict, std::string &error);

@@ -19,7 +19,7 @@ ZV destroy_api() {
     }
 }
 
-K version(K x)
+K version(K ignore)
 {
     R createDictionary(std::map<std::string, K> {
         { "release",    ks((S) BUILD_PROJECT_VERSION) },
@@ -29,7 +29,7 @@ K version(K x)
     });
 }
 
-K LoadLibrary(K x)
+K LoadLibrary(K ignore)
 {
     O("\n");
     O("========= %s =========\n",       PROGRAM_NAME);
@@ -43,15 +43,58 @@ K LoadLibrary(K x)
     O("\n");
 
     auto dict = createDictionary(std::map<std::string, K> {
-        { "version",        dl((V*) version,         1) },
-        { "connect",        dl((V*) connect,         3) },
-        { "disconnect",     dl((V*) disconnect,      1) },
-        { "isConnected",    dl((V*) isConnected,     1) },
-        { "reqCurrentTime", dl((V*) reqCurrentTime,  1) },
-        { "reqMktData",     dl((V*) reqMktData,      4) },
-        { "reqAccountUpdates", dl((V*) reqAccountUpdates, 2) },
-        { "placeOrder",     dl((V*) placeOrder,      3) },
-        { "cancelOrder",    dl((V*) cancelOrder,     1) }
+        { "version",                dl((V*) version,            1) },
+        // EPosixClientSocket
+        { "connect",                dl((V*) connect,            3) },
+        { "disconnect",             dl((V*) disconnect,         1) },
+        { "isConnected",            dl((V*) isConnected,        1) },
+        // EClientSocketBase
+        { "calculateImpliedVolatility", dl((V*) calculateImpliedVolatility, 1) },
+        { "cancelAccountSummary",   dl((V*) cancelAccountSummary, 1) },
+        { "cancelCalculateImpliedVolatility", dl((V*) cancelCalculateImpliedVolatility, 1) },
+        { "cancelCalculateOptionPrice", dl((V*) cancelCalculateOptionPrice, 1) },
+        { "cancelFundamentalData",  dl((V*) cancelFundamentalData, 1) },
+        { "cancelHistoricalData",  dl((V*) cancelHistoricalData, 1) },
+        { "cancelMktData",          dl((V*) cancelMktData,      1) },
+        { "cancelMktDepth",         dl((V*) cancelMktDepth,     1) },
+        { "cancelNewsBulletins",    dl((V*) cancelNewsBulletins,1) },
+        { "cancelOrder",            dl((V*) cancelOrder,        1) },
+        { "cancelPositions",        dl((V*) cancelPositions,    1) },
+        { "cancelRealTimeBars",     dl((V*) cancelRealTimeBars, 1) },
+        { "checkMessages",          dl((V*) checkMessages,      1) },
+        { "exerciseOptions",        dl((V*) exerciseOptions,    6) },
+        { "placeOrder",             dl((V*) placeOrder,         3) },
+        { "queryDisplayGroups",     dl((V*) queryDisplayGroups, 1) },
+        { "replaceFA",              dl((V*) replaceFA,          1) },
+        { "reqAccountSummary",      dl((V*) reqAccountSummary,  3) },
+        { "reqAccountUpdates",      dl((V*) reqAccountUpdates,  2) },
+        { "reqAllOpenOrders",       dl((V*) reqAllOpenOrders,   1) },
+        { "reqAutoOpenOrders",      dl((V*) reqAutoOpenOrders,  1) },
+        { "reqContractDetails",     dl((V*) reqContractDetails, 2) },
+        { "reqCurrentTime",         dl((V*) reqCurrentTime,     1) },
+        { "reqFundamentalData",     dl((V*) reqFundamentalData, 3) },
+        { "reqGlobalCancel",        dl((V*) reqGlobalCancel,    1) },
+        { "reqHistoricalData",      dl((V*) reqHistoricalData,  1) },
+        { "reqIds",                 dl((V*) reqIds,             1) },
+        { "reqManagedAccts",        dl((V*) reqManagedAccts,    1) },
+        { "reqMarketDataType",      dl((V*) reqMarketDataType,  1) },
+        { "reqMktData",             dl((V*) reqMktData,         4) },
+        { "reqMktDepth",            dl((V*) reqMktDepth,        4) },
+        { "reqNewsBulletins",       dl((V*) reqNewsBulletins,   1) },
+        { "reqOpenOrders",          dl((V*) reqOpenOrders,      1) },
+        { "reqPositions",           dl((V*) reqPositions,       1) },
+        { "reqRealTimeBars",        dl((V*) reqRealTimeBars,    6) },
+        { "reqScannerParameters",   dl((V*) reqScannerParameters, 1) },
+        { "reqScannerSubscription", dl((V*) reqScannerSubscription, 3) },
+        { "requestFA",              dl((V*) requestFA,          1) },
+        { "serverVersion",          dl((V*) serverVersion,      1) },
+        { "setServerLogLevel",      dl((V*) setServerLogLevel,  1) },
+        { "subscribeToGroupEvents", dl((V*) subscribeToGroupEvents, 2) },
+        { "TwsConnectionTime",      dl((V*) TwsConnectionTime,  1) },
+        { "unsubscribeFromGroupEvents", dl((V*) unsubscribeFromGroupEvents, 1) },
+        { "updateDisplayGroup",     dl((V*) updateDisplayGroup, 2) },
+        { "verifyMessage",          dl((V*) verifyMessage,      1) },
+        { "verifyRequest",          dl((V*) verifyRequest,      1) }
     });
     R dict;
 }
@@ -62,9 +105,9 @@ K eventLoop(I fd)
     R NULL;
 }
 
-///////////////
-// IB TWS
-///////////////
+///////////////////////
+// EPosixClientSocket
+///////////////////////
 
 K connect(K host, K port, K clientId)
 {
@@ -79,42 +122,100 @@ K connect(K host, K port, K clientId)
     R kb(ib->isConnected());
 }
 
-K disconnect(K x)
+K disconnect(K ignore)
 {
     ib->disconnect();
     R NULL;
 }
 
-K isConnected(K x)
+K isConnected(K ignore)
 {
     R kb(ib->isConnected());
 }
 
-K reqCurrentTime(K x)
+///////////////////////
+// EClientSocketBase
+///////////////////////
+
+K calculateImpliedVolatility(K reqId, K contract, K optionPrice, K underPrice)
 {
-    ib->reqCurrentTime();
     R NULL;
 }
 
-K reqMktData(K tickerId, K contract, K genericTicks, K snapsnot)
+K calculateOptionPrice( K reqId, K contract, K volatility, K underPrice)
 {
-    Q(tickerId->t != -KJ || contract->t != XD || genericTicks->t != KC || snapsnot->t != -KB, "type");
-    Q(!ib->isConnected(), "connection");
-    
-    std::string error;
-    auto c = createContract(contract, error);
-    Q(!error.empty(), error.c_str());
-    
-    ib->reqMktData(tickerId->j, c, "", snapsnot->i == 1);
-    
     R NULL;
 }
 
-K reqAccountUpdates(K subscribe, K acctCode)
+K cancelAccountSummary(K reqId)
 {
-    Q(subscribe->t != -KB || acctCode->t != -KS, "type");
+    R NULL;
+}
+
+K cancelCalculateImpliedVolatility(K reqId)
+{
+    R NULL;
+}
+
+K cancelCalculateOptionPrice(K reqId)
+{
+    R NULL;
+}
+
+K cancelFundamentalData(K reqId)
+{
+    R NULL;
+}
+
+K cancelHistoricalData(K tickerId)
+{
+    R NULL;
+}
+
+K cancelMktData(K id) {
+    R NULL;
+}
+
+K cancelMktDepth(K tickerId)
+{
+    R NULL;
+}
+
+K cancelNewsBulletins(K ignore)
+{
+    R NULL;
+}
+
+K cancelOrder(K id)
+{
+    Q(id->t != -KJ, "type");
     Q(!ib->isConnected(), "connection");
-    ib->reqAccountUpdates(subscribe->i == 1, acctCode->s);
+    ib->cancelOrder(id->j);
+    R NULL;
+}
+
+K cancelPositions(K x)
+{
+    R NULL;
+}
+
+K cancelRealTimeBars(K tickerId)
+{
+    R NULL;
+}
+
+K cancelScannerSubscription(K tickerId)
+{
+    R NULL;
+}
+
+K checkMessages(K ignore)
+{
+    R NULL;
+}
+
+K exerciseOptions(K tickerId, K contract, K exerciseAction,  K exerciseQuantity, K account, K override)
+{
     R NULL;
 }
 
@@ -134,14 +235,179 @@ K placeOrder(K id, K contract, K order)
     R NULL;
 }
 
-K cancelOrder(K id)
+K queryDisplayGroups( K reqId)
 {
-    Q(id->t != -KJ, "type");
-    Q(!ib->isConnected(), "connection");
-    ib->cancelOrder(id->j);
     R NULL;
 }
 
+K replaceFA(K pFaDataType, K cxml)
+{
+    R NULL;
+}
+
+K reqAccountSummary(K reqId, K groupName, K tags)
+{
+    R NULL;
+}
+
+K reqAccountUpdates(K subscribe, K acctCode)
+{
+    Q(subscribe->t != -KB || acctCode->t != -KS, "type");
+    Q(!ib->isConnected(), "connection");
+    ib->reqAccountUpdates(subscribe->i == 1, acctCode->s);
+    R NULL;
+}
+
+K reqAllOpenOrders(K ignore)
+{
+    R NULL;
+}
+
+K reqAutoOpenOrders(K bAutoBind)
+{
+    R NULL;
+}
+
+K reqContractDetails(K reqId, K contract)
+{
+    R NULL;
+}
+
+K reqCurrentTime(K ignore)
+{
+    ib->reqCurrentTime();
+    R NULL;
+}
+
+K reqExecutions(K reqId, K filter)
+{
+    R NULL;
+}
+
+K reqFundamentalData(K reqId, K contract, K reportType)
+{
+    R NULL;
+}
+
+K reqGlobalCancel(K ignore)
+{
+    R NULL;
+}
+
+K reqHistoricalData(K dict)
+{
+    // K id, K contract, K endDateTime, K durationStr, K barSizeSetting, K whatToShow, K useRTH, K formatDate, K chartOptions
+    R NULL;
+}
+
+K reqIds(K numIds)
+{
+    R NULL;
+}
+
+K reqManagedAccts(K ignore)
+{
+    R NULL;
+}
+
+K reqMarketDataType(K marketDataType)
+{
+    R NULL;
+}
+
+K reqMktData(K tickerId, K contract, K genericTicks, K snapsnot)
+{
+    Q(tickerId->t != -KJ || contract->t != XD || genericTicks->t != KC || snapsnot->t != -KB, "type");
+    Q(!ib->isConnected(), "connection");
+    
+    std::string error;
+    auto c = createContract(contract, error);
+    Q(!error.empty(), error.c_str());
+    
+    ib->reqMktData(tickerId->j, c, "", snapsnot->i == 1);
+    
+    R NULL;
+}
+
+K reqMktDepth(K tickerId, K contract, K numRows, K mktDepthOptions)
+{
+    R NULL;
+}
+
+K reqNewsBulletins(K allMsgs)
+{
+    R NULL;
+}
+
+K reqOpenOrders(K ignore)
+{
+    R NULL;
+}
+
+K reqPositions(K ignore)
+{
+    R NULL;
+}
+
+K reqRealTimeBars(K id, K contract, K barSize, K whatToShow, K useRTH, K realTimeBarsOptions)
+{
+    R NULL;
+}
+
+K reqScannerParameters(K ignore)
+{
+    R NULL;
+}
+
+K reqScannerSubscription(K tickerId, K subscription, K scannerSubscriptionOptions)
+{
+    R NULL;
+}
+
+K requestFA(K pFaDataType)
+{
+    R NULL;
+}
+
+K serverVersion(K ignore)
+{
+    R NULL;
+}
+
+K setServerLogLevel(K level)
+{
+    R NULL;
+}
+
+K subscribeToGroupEvents(K reqId, K groupId)
+{
+    R NULL;
+}
+
+K TwsConnectionTime(K ignore)
+{
+    R NULL;
+}
+
+K unsubscribeFromGroupEvents(K reqId)
+{
+    R NULL;
+}
+
+K updateDisplayGroup(K reqId, K contractInfo)
+{
+    R NULL;
+}
+
+K verifyMessage(K apiData)
+{
+    R NULL;
+}
+
+K verifyRequest(K apiName, K apiVersion)
+{
+    R NULL;
+}
 
 ////////////////////
 // Static methods
@@ -270,7 +536,7 @@ Z Contract createContract(K dict, std::string &error)
 {
     Contract c;
     auto map = new std::map<std::string, std::function<V(K, I, std::string&)>> {
-        { "conId",          partial(f, &c.conId,        -KI) },
+        { "conId",          partial(f, &c.conId,        -KJ) },
         { "currency",       partial(f, &c.currency,     -KS) },
         { "exchange",       partial(f, &c.exchange,     -KS) },
         { "expiry",         partial(f, &c.expiry,       -KM) },

@@ -50,8 +50,7 @@ void IBClient::receiveData(const char *fun, K x)
     if (!r) {
         O("Broken socket");
     } else if (r->t == -128) {
-        // TODO: Give more details about types
-        O("Error calling '%s': %s\n", fun, r->s);
+        O("Error calling '%s': %s. Type: %i. Length: %lli\n", fun, r->s, xt, xn);
     }
     r0(r);
 }
@@ -422,7 +421,7 @@ void IBClient::updateNewsBulletin(int msgId, int msgType, const IBString &newsMe
 
 void IBClient::managedAccounts(const IBString &accountsList)
 {
-    receiveData("managedAccounts", kp((S)accountsList.c_str()));
+    receiveData("managedAccounts", knk(1, kp((S)accountsList.c_str())));
 }
 
 void IBClient::deltaNeutralValidation(int reqId, const UnderComp &underComp)

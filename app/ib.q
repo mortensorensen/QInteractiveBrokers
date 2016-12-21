@@ -1,30 +1,38 @@
 out:{-1 string[.z.Z]," ",x;}
+zu:{"z"$-10957+x%8.64e4}
 
 .ib:(`:build/Debug/qib.0.0.1 2:(`LoadLibrary;1))`
-.ib.onrecv:{[fname;args] if[null func:.ib.callbacks[fname];func:.ib.unknown];eval enlist[func],args};
+.ib.onrecv:{[fname;args] if[null func:.ib.callbacks[fname];func:.ib.unknown];value $[type[args] in 98 99h;::;raze] (func;args)};
 .ib.callbacks:()!()
 .ib.unknown:{[fname;args] out" unknown function ",(string fname),", args: ";0N!args}
 .ib.reg:{[fname;code] @[`.ib.callbacks;fname;:;code];}
 .ib.dreg:{[fname] .ib.callbacks _::fname;}
 
-quote:1!flip`id`sym`time`bid`ask`bidsize`asksize`autoexe!"jspffjjb"$\:()
-trade:1!flip`id`sym`time`brokertime`price`size`autoexe!"jspjfjb"$\:()
+contract:1!flip`conId`symbol`secType`exchange`currency!"issss"$\:()
+quote:1!flip`id`sym`time`bid`ask`bidsize`asksize`autoexe!"ispffjjb"$\:()
+trade:1!flip`id`sym`time`price`size`autoexe!"ispfjb"$\:()
 
 i:`quote`trade!0 0
 .ib.nextId:0Nj
 
-tickmap:1!flip `field`table`column!flip 3 cut (
-	0;`quote;`bidsize;
-  1;`quote;`bid;
-  2;`quote;`ask;
-  3;`quote;`asksize;
-  4;`trade;`price;		/ last
-  5;`trade;`size			/ last size
-  / 6;`quote;`high;
-  / 6;`quote;`low;
-  / 8;`trade;`volume;
-  / 9;`quote;`close
-  );
+sym:contract[;`symbol]
+
+updtick:{[tbl;col;val;dict] tbl upsert (enlist[col]!enlist val),dict; i[tbl]+:1;};
+
+/ https://interactivebrokers.github.io/tws-api/tick_types.html
+tick:()!()
+tick[0]:updtick[`quote;`bidsize]
+tick[1]:updtick[`quote;`bid]
+tick[2]:updtick[`quote;`ask]
+tick[3]:updtick[`quote;`asksize]
+tick[4]:updtick[`trade;`price]
+tick[5]:updtick[`trade;`size]
+tick[6]:{[val;dict] out string[sym dict`id]," high = ",string val}
+tick[7]:{[val;dict] out string[sym dict`id]," low = ",string val}
+tick[8]:{[val;dict] out string[sym dict`id]," volume = ",string 100*val}
+tick[9]:{[val;dict] out string[sym dict`id]," close = ",string val}
+tick[45]:{[str;dict] updtick[`trade;`time;;dict] "p"$zu "J"$str} 			/ last timestamp
+tick[49]:{[val;dict] out string[sym dict`id]," ",$[1f=val;"halted";"tradable"]}
 
 .ib.reg[`system] {[id;code;msg] out "SYSTEM: ","|" sv string[id,code],enlist msg}
 .ib.reg[`warning] {[id;code;msg] out "WARNING: ","|" sv string[id,code],enlist msg}
@@ -35,42 +43,28 @@ tickmap:1!flip `field`table`column!flip 3 cut (
 .ib.reg[`currentTime] {out"Current time: ",string x}
 .ib.reg[`nextValidId] {.ib.nextId::x; out"Next valid ID: ",string x}
 
-/ https://www.interactivebrokers.com.hk/en/software/api/apiguide/tables/tick_types.htm
-
 .ib.reg[`tickPrice] {[id;field;price;ae]
-	/ out"tickPrice: ","|" sv string (id;field;price;ae);
-	tm[`table] upsert (`id`time,(tm:tickmap field)[`column],`autoexe)!(id;.z.p;price;ae);
-	i[tm`table]+:1;
+	$[null f:tick[field];
+		out"unknown tickPrice: ","|" sv string (id;field;price;ae);
+		f[price;`id`time`autoexe!(id;.z.p;ae)]];
  };
 
 .ib.reg[`tickSize] {[id;field;size]
-	/ out"tickSize: ","|" sv string (id;field;size);
-	tm[`table] upsert (`id`time,(tm:tickmap field)[`column])!(id;.z.p;size);
-	i[tm`table]+:1;
- };
-
-.ib.tickGenericMap:()!()
-.ib.tickGenericMap[49]:{[id;val]
-	/ halted
-	out"halted: ",string[id],"|",$[1f=val;"halted";"not halted"]
+	$[null f:tick[field];
+		out"unknown tickSize: ","|" sv string (id;field;size);
+		f[size;`id`time!(id;.z.p)]];
  };
 
 .ib.reg[`tickGeneric] {[id;field;val]
-	if[null f:.ib.tickGenericMap field;
-		out"tickGeneric: ","|" sv string[(id;field;val)];
-		f[id;val]]
- };
-
-.ib.tickStringMap:()!()
-.ib.tickStringMap[45]:{[id;str]
-	/ last timestamp
-	out"last timestamp: ",string[id],"|",str
+	$[null f:tick[field];
+		out"unknown tickGeneric: ","|" sv string (id;field;val);
+		f[val;enlist[`id]!enlist id]];
  };
 
 .ib.reg[`tickString] {[id;field;str]
-	if[null f:.ib.tickStringMap field;
-		out"tickString: ","|" sv string[(id;field)],str;
-		f[id;str]]
+	$[null f:tick[field];
+		out"unknown tickString: ","|" sv string[(id;field)],enlist str;
+		f[str;enlist[`id]!enlist id]];
  };
 
 .ib.reg[`tickEFP] {[dict]
@@ -94,7 +88,7 @@ tickmap:1!flip `field`table`column!flip 3 cut (
  };
 
 .ib.reg[`updateAccountTime] {[ts]
-	out"updateAccountTime"
+	out"updateAccountTime - ",string zu "J"$ts
  };
 
 .ib.reg[`openOrder] {[dict]
