@@ -18,10 +18,6 @@
 
 inline F zu(I u) { return u / 8.64e4 - 10957; }  // kdb+ datetime from unix
 inline I uz(F f) { return 86400 * (f + 10957); } // unix from kdb+ datetime
-inline struct tm *gt(double kd) {
-    time_t t = uz(kd);
-    return gmtime(&t);
-}
 
 template<typename ... Args>
 std::string stringFormat(const std::string& format, Args ... args )

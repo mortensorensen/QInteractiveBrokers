@@ -3,6 +3,10 @@
 
 #include "EWrapper.h"
 #include "k.h"
+#include "Contract.h"
+#include "Order.h"
+#include "Execution.h"
+#include "ScannerSubscription.h"
 
 #include <memory>
 
@@ -28,68 +32,56 @@ private:
     void receiveData(const char *fun, K x);
     
 public:
-    void reqCurrentTime();
-    void reqMktData(TickerId id, const Contract &contract, const std::string &genericTicks, bool snapshot);
-    void reqAccountUpdates (bool subscribe, const char *acctCode);
-    void placeOrder(OrderId id, const Contract &contract, const Order &order);
+    // Methods
+    bool checkMessages();
+    IBString TwsConnectionTime();
+    int serverVersion();
+    void calculateImpliedVolatility(TickerId reqId, const Contract &contract, double optionPrice, double underPrice);
+    void calculateOptionPrice(TickerId reqId, const Contract &contract, double volatility, double underPrice);
+    void cancelAccountSummary( int reqId);
+    void cancelCalculateImpliedVolatility(TickerId reqId);
+    void cancelCalculateOptionPrice(TickerId reqId);
+    void cancelFundamentalData(TickerId reqId);
+    void cancelHistoricalData(TickerId tickerId );
+    void cancelMktData(TickerId id);
+    void cancelMktDepth(TickerId tickerId);
+    void cancelNewsBulletins();
     void cancelOrder(OrderId id) ;
-    
-//    int serverVersion();
-//    IBString TwsConnectionTime();
-//    void reqMktData(TickerId id, const Contract &contract,
-//                    const IBString &genericTicks, bool snapshot, const TagValueListSPtr& mktDataOptions);
-//    void cancelMktData(TickerId id);
-//    void placeOrder(OrderId id, const Contract &contract, const Order &order);
-//    void cancelOrder(OrderId id) ;
-//    void reqOpenOrders();
-//    void reqAccountUpdates(bool subscribe, const IBString& acctCode);
-//    void reqExecutions(int reqId, const ExecutionFilter& filter);
-//    void reqIds(int numIds);
-//    bool checkMessages();
-//    void reqContractDetails(int reqId, const Contract &contract);
-//    void reqMktDepth(TickerId tickerId, const Contract &contract, int numRows, const TagValueListSPtr& mktDepthOptions);
-//    void cancelMktDepth(TickerId tickerId);
-//    void reqNewsBulletins(bool allMsgs);
-//    void cancelNewsBulletins();
-//    void setServerLogLevel(int level);
-//    void reqAutoOpenOrders(bool bAutoBind);
-//    void reqAllOpenOrders();
-//    void reqManagedAccts();
-//    void requestFA(faDataType pFaDataType);
-//    void replaceFA(faDataType pFaDataType, const IBString& cxml);
-//    void reqHistoricalData( TickerId id, const Contract &contract,
-//                           const IBString &endDateTime, const IBString &durationStr,
-//                           const IBString & barSizeSetting, const IBString &whatToShow,
-//                           int useRTH, int formatDate, const TagValueListSPtr& chartOptions);
-//    void exerciseOptions(TickerId tickerId, const Contract &contract,
-//                         int exerciseAction, int exerciseQuantity,
-//                         const IBString &account, int override);
-//    void cancelHistoricalData(TickerId tickerId );
-//    void reqRealTimeBars(TickerId id, const Contract &contract, int barSize,
-//                         const IBString &whatToShow, bool useRTH, const TagValueListSPtr& realTimeBarsOptions);
-//    void cancelRealTimeBars(TickerId tickerId );
-//    void cancelScannerSubscription(int tickerId);
-//    void reqScannerParameters();
-//    void reqScannerSubscription(int tickerId, const ScannerSubscription &subscription, const TagValueListSPtr& scannerSubscriptionOptions);
-//    void reqCurrentTime();
-//    void reqFundamentalData(TickerId reqId, const Contract&, const IBString& reportType);
-//    void cancelFundamentalData(TickerId reqId);
-//    void calculateImpliedVolatility(TickerId reqId, const Contract &contract, double optionPrice, double underPrice);
-//    void calculateOptionPrice(TickerId reqId, const Contract &contract, double volatility, double underPrice);
-//    void cancelCalculateImpliedVolatility(TickerId reqId);
-//    void cancelCalculateOptionPrice(TickerId reqId);
-//    void reqGlobalCancel();
-//    void reqMarketDataType(int marketDataType);
-//    void reqPositions();
-//    void cancelPositions();
-//    void reqAccountSummary( int reqId, const IBString& groupName, const IBString& tags);
-//    void cancelAccountSummary( int reqId);
-//    void verifyRequest( const IBString& apiName, const IBString& apiVersion);
-//    void verifyMessage( const IBString& apiData);
-//    void queryDisplayGroups( int reqId);
-//    void subscribeToGroupEvents( int reqId, int groupId);
-//    void updateDisplayGroup( int reqId, const IBString& contractInfo);
-//    void unsubscribeFromGroupEvents( int reqId);
+    void cancelPositions();
+    void cancelRealTimeBars(TickerId tickerId );
+    void cancelScannerSubscription(int tickerId);
+    void exerciseOptions(TickerId tickerId, const Contract &contract, int exerciseAction, int exerciseQuantity, const IBString &account, int override);
+    void placeOrder(OrderId id, const Contract &contract, const Order &order);
+    void queryDisplayGroups( int reqId);
+    void replaceFA(faDataType pFaDataType, const IBString& cxml);
+    void reqAccountSummary( int reqId, const IBString& groupName, const IBString& tags);
+    void reqAccountUpdates(bool subscribe, const IBString& acctCode);
+    void reqAllOpenOrders();
+    void reqAutoOpenOrders(bool bAutoBind);
+    void reqContractDetails(int reqId, const Contract &contract);
+    void reqCurrentTime();
+    void reqExecutions(int reqId, const ExecutionFilter& filter);
+    void reqFundamentalData(TickerId reqId, const Contract&, const IBString& reportType);
+    void reqGlobalCancel();
+    void reqHistoricalData(TickerId id, const Contract &contract, const IBString &endDateTime, const IBString &durationStr, const IBString & barSizeSetting, const IBString &whatToShow, int useRTH, int formatDate, const TagValueListSPtr& chartOptions);
+    void reqIds(int numIds);
+    void reqManagedAccts();
+    void reqMarketDataType(int marketDataType);
+    void reqMktData(TickerId id, const Contract &contract, const IBString &genericTicks, bool snapshot, const TagValueListSPtr& mktDataOptions);
+    void reqMktDepth(TickerId tickerId, const Contract &contract, int numRows, const TagValueListSPtr& mktDepthOptions);
+    void reqNewsBulletins(bool allMsgs);
+    void reqOpenOrders();
+    void reqPositions();
+    void reqRealTimeBars(TickerId id, const Contract &contract, int barSize, const IBString &whatToShow, bool useRTH, const TagValueListSPtr& realTimeBarsOptions);
+    void reqScannerParameters();
+    void reqScannerSubscription(int tickerId, const ScannerSubscription &subscription, const TagValueListSPtr& scannerSubscriptionOptions);
+    void requestFA(faDataType pFaDataType);
+    void setServerLogLevel(int level);
+    void subscribeToGroupEvents( int reqId, int groupId);
+    void unsubscribeFromGroupEvents( int reqId);
+    void updateDisplayGroup( int reqId, const IBString& contractInfo);
+    void verifyMessage( const IBString& apiData);
+    void verifyRequest( const IBString& apiName, const IBString& apiVersion);
     
 public:
     // Events

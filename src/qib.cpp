@@ -3,6 +3,7 @@
 #include "IBClient.h"
 #include <sstream>
 #include <typeinfo>
+#include <string>
 
 IBClient *ib;
 
@@ -118,7 +119,7 @@ K connect(K host, K port, K clientId)
         if (ib->isConnected())
             sd1(ib->fd(), eventLoop);
     }
-
+    
     R kb(ib->isConnected());
 }
 
@@ -149,40 +150,55 @@ K calculateOptionPrice( K reqId, K contract, K volatility, K underPrice)
 
 K cancelAccountSummary(K reqId)
 {
+    Q(reqId->t != -KJ, "type");
+    ib->cancelAccountSummary(reqId->j);
     R NULL;
 }
 
 K cancelCalculateImpliedVolatility(K reqId)
 {
+    Q(reqId->t != -KJ, "type");
+    ib->cancelCalculateImpliedVolatility(reqId->j);
     R NULL;
 }
 
 K cancelCalculateOptionPrice(K reqId)
 {
+    Q(reqId->t != -KJ, "type");
+    ib->cancelCalculateOptionPrice(reqId->j);
     R NULL;
 }
 
 K cancelFundamentalData(K reqId)
 {
+    Q(reqId->t != -KJ, "type");
+    ib->cancelFundamentalData(reqId->j);
     R NULL;
 }
 
 K cancelHistoricalData(K tickerId)
 {
+    Q(tickerId->t != -KJ, "type");
+    ib->cancelHistoricalData(tickerId->j);
     R NULL;
 }
 
 K cancelMktData(K id) {
+    Q(id->t != -KJ, "type");
+    ib->cancelMktData(id->j);
     R NULL;
 }
 
 K cancelMktDepth(K tickerId)
 {
+    Q(tickerId->t != -KJ, "type");
+    ib->cancelMktData(tickerId->j);
     R NULL;
 }
 
 K cancelNewsBulletins(K ignore)
 {
+    ib->cancelNewsBulletins();
     R NULL;
 }
 
@@ -194,29 +210,37 @@ K cancelOrder(K id)
     R NULL;
 }
 
-K cancelPositions(K x)
+K cancelPositions(K ignore)
 {
+    ib->cancelPositions();
     R NULL;
 }
 
 K cancelRealTimeBars(K tickerId)
 {
+    Q(tickerId->t != -KJ, "type");
+    ib->cancelRealTimeBars(tickerId->j);
     R NULL;
 }
 
 K cancelScannerSubscription(K tickerId)
 {
+    Q(tickerId->t != -KJ, "type");
+    ib->cancelScannerSubscription(tickerId->j);
     R NULL;
 }
 
 K checkMessages(K ignore)
 {
+    ib->checkMessages();
     R NULL;
 }
 
-K exerciseOptions(K tickerId, K contract, K exerciseAction,  K exerciseQuantity, K account, K override)
+K exerciseOptions(K tickerId, K contract, K exerciseAction, K exerciseQuantity, K account, K override)
 {
-    R NULL;
+    Q(tickerId->t != -KJ || contract->t != XD || exerciseAction->t != KJ ||
+      exerciseQuantity->t != -KJ || account->t != -KS || override->t != -KJ, "type");
+    R krr((S)"nyi");
 }
 
 K placeOrder(K id, K contract, K order)
@@ -235,19 +259,23 @@ K placeOrder(K id, K contract, K order)
     R NULL;
 }
 
-K queryDisplayGroups( K reqId)
+K queryDisplayGroups(K reqId)
 {
+    Q(reqId->t != -KJ, "type");
+    ib->queryDisplayGroups(reqId->j);
     R NULL;
 }
 
 K replaceFA(K pFaDataType, K cxml)
 {
-    R NULL;
+    Q(pFaDataType->t != -KJ || cxml->t != KC, "type");
+    R krr((S)"nyi");
 }
 
 K reqAccountSummary(K reqId, K groupName, K tags)
 {
-    R NULL;
+    Q(reqId->t != -KJ || groupName->t != KC || tags->t != KC, "type");
+    R krr((S)"nyi");
 }
 
 K reqAccountUpdates(K subscribe, K acctCode)
@@ -260,17 +288,21 @@ K reqAccountUpdates(K subscribe, K acctCode)
 
 K reqAllOpenOrders(K ignore)
 {
+    ib->reqAllOpenOrders();
     R NULL;
 }
 
 K reqAutoOpenOrders(K bAutoBind)
 {
+    Q(bAutoBind->t != -KB, "type");
+    ib->reqAutoOpenOrders(bAutoBind->i == 1);
     R NULL;
 }
 
 K reqContractDetails(K reqId, K contract)
 {
-    R NULL;
+    Q(reqId->t != -KJ || contract->t != XD, "type");
+    R krr((S)"nyi");
 }
 
 K reqCurrentTime(K ignore)
@@ -281,37 +313,46 @@ K reqCurrentTime(K ignore)
 
 K reqExecutions(K reqId, K filter)
 {
-    R NULL;
+    Q(reqId->t != -KJ || filter->t != XD, "type");
+    R krr((S)"nyi");
 }
 
 K reqFundamentalData(K reqId, K contract, K reportType)
 {
-    R NULL;
+    Q(reqId->t != -KJ || contract->t != XD || reportType->t != -KS, "type");
+    R krr((S)"nyi");
 }
 
 K reqGlobalCancel(K ignore)
 {
+    ib->reqGlobalCancel();
     R NULL;
 }
 
 K reqHistoricalData(K dict)
 {
+    Q(dict->t != XD, "type");
     // K id, K contract, K endDateTime, K durationStr, K barSizeSetting, K whatToShow, K useRTH, K formatDate, K chartOptions
-    R NULL;
+    R krr((S)"nyi");
 }
 
 K reqIds(K numIds)
 {
+    Q(numIds->t != -KJ, "type");
+    ib->reqIds(numIds->j);
     R NULL;
 }
 
 K reqManagedAccts(K ignore)
 {
+    ib->reqManagedAccts();
     R NULL;
 }
 
 K reqMarketDataType(K marketDataType)
 {
+    Q(marketDataType->t != -KJ, "type");
+    ib->reqMarketDataType(marketDataType->j);
     R NULL;
 }
 
@@ -324,88 +365,120 @@ K reqMktData(K tickerId, K contract, K genericTicks, K snapsnot)
     auto c = createContract(contract, error);
     Q(!error.empty(), error.c_str());
     
-    ib->reqMktData(tickerId->j, c, "", snapsnot->i == 1);
+    TagValueListSPtr tag;
+    ib->reqMktData(tickerId->j, c, "", snapsnot->i == 1, tag);
     
     R NULL;
 }
 
 K reqMktDepth(K tickerId, K contract, K numRows, K mktDepthOptions)
 {
-    R NULL;
+    Q(tickerId->t != -KJ || contract->t != XD || numRows->t != -KJ || mktDepthOptions->t != XD, "type");
+    R krr((S)"nyi");
 }
 
 K reqNewsBulletins(K allMsgs)
 {
+    Q(allMsgs->t != -KB, "type");
+    ib->reqNewsBulletins(allMsgs->i == 1);
     R NULL;
 }
 
 K reqOpenOrders(K ignore)
 {
+    ib->reqOpenOrders();
     R NULL;
 }
 
 K reqPositions(K ignore)
 {
+    ib->reqPositions();
     R NULL;
 }
 
 K reqRealTimeBars(K id, K contract, K barSize, K whatToShow, K useRTH, K realTimeBarsOptions)
 {
-    R NULL;
+    Q(id->t != -KJ || contract->t != XD || barSize->t != -KJ || whatToShow->t != KC ||
+      useRTH->t != -KB || realTimeBarsOptions->t != XD, "type");
+    R krr((S)"nyi");
 }
 
 K reqScannerParameters(K ignore)
 {
+    ib->reqScannerParameters();
     R NULL;
 }
 
 K reqScannerSubscription(K tickerId, K subscription, K scannerSubscriptionOptions)
 {
-    R NULL;
+    Q(tickerId->t != -KJ || subscription->t != XD || scannerSubscriptionOptions->t != XD, "type");
+    R krr((S)"nyi");
 }
 
 K requestFA(K pFaDataType)
 {
+    Q(pFaDataType->t != -KS, "type");
+    std::string value = pFaDataType->s;
+    
+    if (value.compare("GROUPS") == 0)          ib->requestFA(faDataType::GROUPS);
+    else if (value.compare("PROFILES") == 0)   ib->requestFA(faDataType::PROFILES);
+    else if (value.compare("ALIASES") == 0)    ib->requestFA(faDataType::ALIASES);
+    else R krr((S)"unknown faDataType");
+    
     R NULL;
 }
 
 K serverVersion(K ignore)
 {
-    R NULL;
+    R ki(ib->serverVersion());
 }
 
 K setServerLogLevel(K level)
 {
+    Q(level->t != -KJ, "type");
+    ib->setServerLogLevel(level->j);
     R NULL;
 }
 
 K subscribeToGroupEvents(K reqId, K groupId)
 {
+    Q(reqId->t != -KJ || groupId->t != -KJ, "type");
+    ib->subscribeToGroupEvents(reqId->j, groupId->j);
     R NULL;
 }
 
 K TwsConnectionTime(K ignore)
 {
-    R NULL;
+    std::string::size_type sz;
+    I time = std::stol(ib->TwsConnectionTime(), &sz);
+    R kz(zu(time));
 }
 
 K unsubscribeFromGroupEvents(K reqId)
 {
+    Q(reqId->t != -KJ, "type");
+    ib->unsubscribeFromGroupEvents(reqId->j);
     R NULL;
 }
 
 K updateDisplayGroup(K reqId, K contractInfo)
 {
+    Q(reqId->t != -KJ || contractInfo->t != KC, "type");
+    ib->updateDisplayGroup(reqId->j, contractInfo->s); // TODO: Validate string extraction
     R NULL;
 }
 
 K verifyMessage(K apiData)
 {
+    Q(apiData->t != KC, "type");
+    ib->verifyMessage(apiData->s);
     R NULL;
 }
 
 K verifyRequest(K apiName, K apiVersion)
 {
+    Q(apiName->t != -KS || apiVersion->t != KC, "type");
+    ib->verifyRequest(apiName->s, apiVersion->s); // TODO: Validate string extraction
     R NULL;
 }
 
@@ -429,7 +502,7 @@ template<typename T> V setAtom(T *property, K x, G type, std::string &error)
 template<> V setAtom(bool *property, K x, G type, std::string &error)
 {
     SW(xt) {
-        CS(-1, *property = x->g ==1)
+        CS(-1, *property = x->g == 1);
         CD: typeError(property, type);
     }
 }

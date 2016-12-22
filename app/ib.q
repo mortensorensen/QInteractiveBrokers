@@ -15,7 +15,7 @@ trade:1!flip`id`sym`time`price`size`autoexe!"ispfjb"$\:()
 i:`quote`trade!0 0
 .ib.nextId:0Nj
 
-sym:contract[;`symbol]
+sym:contract[;`symbol]@
 
 updtick:{[tbl;col;val;dict] tbl upsert (enlist[col]!enlist val),dict; i[tbl]+:1;};
 
