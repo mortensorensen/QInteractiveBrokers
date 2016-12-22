@@ -15,13 +15,13 @@ extern "C"
     K isConnected(K ignore);
     
     K calculateImpliedVolatility(K reqId, K contract, K optionPrice, K underPrice);
-    K calculateOptionPrice( K reqId, K contract, K volatility, K underPrice);
+    K calculateOptionPrice(K reqId, K contract, K volatility, K underPrice);
     K cancelAccountSummary(K reqId);
     K cancelCalculateImpliedVolatility(K reqId);
     K cancelCalculateOptionPrice(K reqId);
     K cancelFundamentalData(K reqId);
     K cancelHistoricalData(K tickerId);
-    K cancelMktData( K id);
+    K cancelMktData(K id);
     K cancelMktDepth(K tickerId);
     K cancelNewsBulletins(K ignore);
     K cancelOrder(K id) ;

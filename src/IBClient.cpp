@@ -59,20 +59,94 @@ void IBClient::receiveData(const char *fun, K x)
 //// Methods
 /////////////////////////////////////////////
 
-void IBClient::reqCurrentTime()
+bool IBClient::checkMessages()
 {
-    socket->reqCurrentTime();
+    return socket->checkMessages();
 }
 
-void IBClient::reqMktData(TickerId id, const Contract &contract, const std::string &genericTicks, bool snapshot)
+IBString IBClient::TwsConnectionTime()
 {
-    TagValueListSPtr tag;
-    socket->reqMktData(id, contract, genericTicks, snapshot, tag);
+    return socket->TwsConnectionTime();
 }
 
-void IBClient::reqAccountUpdates(bool subscribe, const char *acctCode)
+int IBClient::serverVersion()
 {
-    socket->reqAccountUpdates(subscribe, acctCode);
+    return socket->serverVersion();
+}
+
+void IBClient::calculateImpliedVolatility(TickerId reqId, const Contract &contract, double optionPrice, double underPrice)
+{
+    socket->calculateImpliedVolatility(reqId, contract, optionPrice, underPrice);
+}
+
+void IBClient::calculateOptionPrice(TickerId reqId, const Contract &contract, double volatility, double underPrice)
+{
+    socket->calculateOptionPrice(reqId, contract, volatility, underPrice);
+}
+
+void IBClient::cancelAccountSummary(int reqId)
+{
+    socket->cancelAccountSummary(reqId);
+}
+
+void IBClient::cancelCalculateImpliedVolatility(TickerId reqId)
+{
+    socket->cancelCalculateImpliedVolatility(reqId);
+}
+
+void IBClient::cancelCalculateOptionPrice(TickerId reqId)
+{
+    socket->cancelCalculateOptionPrice(reqId);
+}
+
+void IBClient::cancelFundamentalData(TickerId reqId)
+{
+    socket->cancelFundamentalData(reqId);
+}
+
+void IBClient::cancelHistoricalData(TickerId tickerId)
+{
+    socket->cancelHistoricalData(tickerId);
+}
+
+void IBClient::cancelMktData(TickerId id)
+{
+    socket->cancelMktData(id);
+}
+
+void IBClient::cancelMktDepth(TickerId tickerId)
+{
+    socket->cancelMktDepth(tickerId);
+}
+
+void IBClient::cancelNewsBulletins()
+{
+    socket->cancelNewsBulletins();
+}
+
+void IBClient::cancelOrder(OrderId id)
+{
+    socket->cancelOrder(id);
+}
+
+void IBClient::cancelPositions()
+{
+    socket->cancelPositions();
+}
+
+void IBClient::cancelRealTimeBars(TickerId tickerId)
+{
+    socket->cancelRealTimeBars(tickerId);
+}
+
+void IBClient::cancelScannerSubscription(int tickerId)
+{
+    socket->cancelScannerSubscription(tickerId);
+}
+
+void IBClient::exerciseOptions(TickerId tickerId, const Contract &contract, int exerciseAction, int exerciseQuantity, const IBString &account, int override)
+{
+    socket->exerciseOptions(tickerId, contract, exerciseAction, exerciseQuantity, account, override);
 }
 
 void IBClient::placeOrder(OrderId id, const Contract &contract, const Order &order)
@@ -80,9 +154,154 @@ void IBClient::placeOrder(OrderId id, const Contract &contract, const Order &ord
     socket->placeOrder(id, contract, order);
 }
 
-void IBClient::cancelOrder(OrderId id)
+void IBClient::queryDisplayGroups(int reqId)
 {
-    socket->cancelOrder(id);
+    socket->queryDisplayGroups(reqId);
+}
+
+void IBClient::replaceFA(faDataType pFaDataType, const IBString& cxml)
+{
+    socket->replaceFA(pFaDataType, cxml);
+}
+
+void IBClient::reqAccountSummary(int reqId, const IBString& groupName, const IBString& tags)
+{
+    socket->reqAccountSummary(reqId, groupName, tags);
+}
+
+void IBClient::reqAccountUpdates(bool subscribe, const IBString& acctCode)
+{
+    socket->reqAccountUpdates(subscribe, acctCode);
+}
+
+void IBClient::reqAllOpenOrders()
+{
+    socket->reqAllOpenOrders();
+}
+
+void IBClient::reqAutoOpenOrders(bool bAutoBind)
+{
+    socket->reqAutoOpenOrders(bAutoBind);
+}
+
+void IBClient::reqContractDetails(int reqId, const Contract &contract)
+{
+    socket->reqContractDetails(reqId, contract);
+}
+
+void IBClient::reqCurrentTime()
+{
+    socket->reqCurrentTime();
+}
+
+void IBClient::reqExecutions(int reqId, const ExecutionFilter& filter)
+{
+    socket->reqExecutions(reqId, filter);
+}
+
+void IBClient::reqFundamentalData(TickerId reqId, const Contract& contract, const IBString& reportType)
+{
+    socket->reqFundamentalData(reqId, contract, reportType);
+}
+
+void IBClient::reqGlobalCancel()
+{
+    socket->reqGlobalCancel();
+}
+
+void IBClient::reqHistoricalData(TickerId id, const Contract &contract, const IBString &endDateTime, const IBString &durationStr, const IBString & barSizeSetting, const IBString &whatToShow, int useRTH, int formatDate, const TagValueListSPtr& chartOptions)
+{
+    socket->reqHistoricalData(id, contract, endDateTime, durationStr, barSizeSetting, whatToShow, useRTH, formatDate, chartOptions);
+}
+
+void IBClient::reqIds(int numIds)
+{
+    socket->reqIds(numIds);
+}
+
+void IBClient::reqManagedAccts()
+{
+    socket->reqManagedAccts();
+}
+
+void IBClient::reqMarketDataType(int marketDataType)
+{
+    socket->reqMarketDataType(marketDataType);
+}
+
+void IBClient::reqMktData(TickerId id, const Contract &contract, const IBString &genericTicks, bool snapshot, const TagValueListSPtr& mktDataOptions)
+{
+    socket->reqMktData(id, contract, genericTicks, snapshot, mktDataOptions);
+}
+
+void IBClient::reqMktDepth(TickerId tickerId, const Contract &contract, int numRows, const TagValueListSPtr& mktDepthOptions)
+{
+    socket->reqMktDepth(tickerId, contract, numRows, mktDepthOptions);
+}
+
+void IBClient::reqNewsBulletins(bool allMsgs)
+{
+    socket->reqNewsBulletins(allMsgs);
+}
+
+void IBClient::reqOpenOrders()
+{
+    socket->reqOpenOrders();
+}
+
+void IBClient::reqPositions()
+{
+    socket->reqPositions();
+}
+
+void IBClient::reqRealTimeBars(TickerId id, const Contract &contract, int barSize, const IBString &whatToShow, bool useRTH, const TagValueListSPtr& realTimeBarsOptions)
+{
+    socket->reqRealTimeBars(id, contract, barSize, whatToShow, useRTH, realTimeBarsOptions);
+}
+
+void IBClient::reqScannerParameters()
+{
+    socket->reqScannerParameters();
+}
+
+void IBClient::reqScannerSubscription(int tickerId, const ScannerSubscription &subscription, const TagValueListSPtr& scannerSubscriptionOptions)
+{
+    socket->reqScannerSubscription(tickerId, subscription, scannerSubscriptionOptions);
+}
+
+void IBClient::requestFA(faDataType pFaDataType)
+{
+    socket->requestFA(pFaDataType);
+}
+
+void IBClient::setServerLogLevel(int level)
+{
+    socket->setServerLogLevel(level);
+}
+
+void IBClient::subscribeToGroupEvents(int reqId, int groupId)
+{
+    socket->subscribeToGroupEvents(reqId, groupId);
+}
+
+void IBClient::unsubscribeFromGroupEvents(int reqId)
+{
+    socket->unsubscribeFromGroupEvents(reqId);
+}
+
+void IBClient::updateDisplayGroup(int reqId, const IBString& contractInfo)
+{
+    socket->updateDisplayGroup(reqId, contractInfo);
+}
+
+void IBClient::verifyMessage(const IBString& apiData)
+{
+    socket->verifyMessage(apiData);
+}
+
+void IBClient::verifyRequest(const IBString& apiName, const IBString& apiVersion)
+{
+    socket->verifyRequest(apiName, apiVersion);
 }
 
 /////////////////////////////////////////////
@@ -258,7 +477,7 @@ void IBClient::realtimeBar(TickerId reqId, long time, double open, double high, 
 {
     auto dict = createDictionary(std::map<std::string, K> {
         { "reqId",  kj(reqId) },
-        { "time",   kj(time) }, // TODO: Convert
+        { "time",   kz(zu(time)) },
         { "open",   kf(open) },
         { "high",   kf(high) },
         { "low",    kf(low) },
@@ -301,9 +520,10 @@ void IBClient::accountSummaryEnd(int reqId)
 
 void IBClient::execDetails(int reqId, const Contract &contract, const Execution &execution)
 {
+    std::string::size_type sz;
     auto exec = createDictionary(std::map<std::string, K> {
         { "execId",         ks((S)execution.execId.c_str()) },
-        { "time",           kp((S)execution.time.c_str()) }, // TODO: Convert
+        { "time",           kz(zu(std::stol(execution.time, &sz))) },
         { "acctNumber",     ks((S)execution.acctNumber.c_str()) },
         { "exchange",       ks((S)execution.exchange.c_str()) },
         { "side",           ks((S)execution.side.c_str()) },
@@ -387,7 +607,7 @@ void IBClient::historicalData(TickerId reqId, const IBString &date, double open,
 {
     auto dict = createDictionary(std::map<std::string, K> {
         { "reqId",  kj(reqId) },
-        { "date",   ks((S)date.c_str()) },
+        { "date",   ks((S)date.c_str()) }, // TODO: Convert
         { "open",   kf(open) },
         { "high",   kf(high) },
         { "low",    kf(low) },

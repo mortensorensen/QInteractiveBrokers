@@ -8,14 +8,14 @@ zu:{"z"$-10957+x%8.64e4}
 .ib.reg:{[fname;code] @[`.ib.callbacks;fname;:;code];}
 .ib.dreg:{[fname] .ib.callbacks _::fname;}
 
-contract:1!flip`conId`symbol`secType`exchange`currency!"issss"$\:()
+contract:1!flip`id`symbol`secType`exchange`currency!"issss"$\:()
 quote:1!flip`id`sym`time`bid`ask`bidsize`asksize`autoexe!"ispffjjb"$\:()
 trade:1!flip`id`sym`time`price`size`autoexe!"ispfjb"$\:()
 
 i:`quote`trade!0 0
 .ib.nextId:0Nj
 
-sym:contract[;`symbol]
+sym:{contract[x;`symbol]}
 
 updtick:{[tbl;col;val;dict] tbl upsert (enlist[col]!enlist val),dict; i[tbl]+:1;};
 
