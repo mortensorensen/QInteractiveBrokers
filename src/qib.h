@@ -5,6 +5,8 @@
 #include <config.h>
 #include "Contract.h"
 #include "Order.h"
+#include "Execution.h"
+#include "ScannerSubscription.h"
 
 extern "C"
 {
@@ -67,6 +69,9 @@ extern "C"
 
 Z Contract createContract(K dict, std::string &error);
 Z Order createOrder(K dict, std::string &error);
+Z ExecutionFilter createExecutionFilter(K dict, std::string &error);
+Z ScannerSubscription createScannerSubscription(K dict, std::string &error);
+Z TagValueListSPtr createTagValueList(K dict, std::string &error);
 
 template<typename T> V setItem(T &property, G type, K x, I index, std::string &error);
 template<typename T> V setProperty(T &property, I expectedType, K x, I index, std::string &error);

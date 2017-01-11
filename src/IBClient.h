@@ -28,6 +28,13 @@ public:
     
 private:
     void receiveData(const char *fun, K x);
+    K convertContract(const Contract &contract);
+    K convertContractDetails(const ContractDetails &contract);
+    K convertBondContractDetails(const ContractDetails &contract);
+    K convertExecution(const Execution &execution);
+    K convertCommissionReport(const CommissionReport &report);
+    K convertUnderComp(const UnderComp &comp);
+    K convertOrderState(const OrderState &orderState);
     
 public:
     // Methods
@@ -44,7 +51,7 @@ public:
     void cancelMktData(TickerId id);
     void cancelMktDepth(TickerId tickerId);
     void cancelNewsBulletins();
-    void cancelOrder(OrderId id) ;
+    void cancelOrder(OrderId id);
     void cancelPositions();
     void cancelRealTimeBars(TickerId tickerId );
     void cancelScannerSubscription(int tickerId);
@@ -86,10 +93,10 @@ public:
     void accountDownloadEnd(const IBString& accountName);
     void accountSummary( int reqId, const IBString& account, const IBString& tag, const IBString& value, const IBString& curency);
     void accountSummaryEnd( int reqId);
-    void bondContractDetails(int reqId, const ContractDetails& contractDetails) {};
+    void bondContractDetails(int reqId, const ContractDetails& contractDetails);
     void commissionReport( const CommissionReport& commissionReport);
     void connectionClosed();
-    void contractDetails(int reqId, const ContractDetails& contractDetails) {};
+    void contractDetails(int reqId, const ContractDetails& contractDetails);
     void contractDetailsEnd(int reqId);
     void currentTime(long time);
     void deltaNeutralValidation(int reqId, const UnderComp& underComp);

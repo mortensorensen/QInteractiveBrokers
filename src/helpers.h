@@ -7,6 +7,8 @@
 #include "k.h"
 
 #define Q(x, e) if(x) { krr((S)e); R 0; }
+#define kip(x) kp((S)x.c_str())
+#define kis(x) ks((S)x.c_str())
 
 inline F zu(I u) { return u / 8.64e4 - 10957; }  // kdb+ datetime from unix
 inline I uz(F f) { return 86400 * (f + 10957); } // unix from kdb+ datetime
@@ -28,7 +30,7 @@ static std::string formatTime(const char *str, time_t time, int adjusted)
     if (adjusted) timeinfo->tm_hour -= 1;
     strftime(buffer, sizeof(buffer), str, timeinfo);
     
-    return stringFormat("%s ", buffer);
+    return stringFormat("%s", buffer);
 }
 
 template<class F, class V>

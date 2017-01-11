@@ -1,8 +1,9 @@
 out:{-1 string[.z.Z]," ",x;}
-zu:{"z"$-10957+x%8.64e4}
+zu:{"z"$-10957+x%8.64e4} / kdb+ datetime from unix
+format:{ssr[ssr[;"\"";""] .j.j x;",";", "]}
 
 .ib:(`:build/Debug/qib.0.0.1 2:(`LoadLibrary;1))`
-.ib.onrecv:{[fname;args] if[null func:.ib.callbacks[fname];func:.ib.unknown];value $[type[args] in 98 99h;::;raze] (func;args)};
+.ib.onrecv:{[fname;args] value (enlist $[null func:.ib.callbacks[fname];.ib.unknown;func]),$[type[args] in 10 98 99h;enlist;::] args};
 .ib.callbacks:()!()
 .ib.unknown:{[fname;args] out" unknown function ",(string fname),", args: ";0N!args}
 .ib.reg:{[fname;code] @[`.ib.callbacks;fname;:;code];}
@@ -14,6 +15,7 @@ trade:1!flip`id`sym`time`price`size`autoexe!"ispfjb"$\:()
 
 i:`quote`trade!0 0
 .ib.nextId:0Nj
+.ib.ready:0b
 
 sym:{contract[x;`symbol]}
 
@@ -41,7 +43,10 @@ tick[49]:{[val;dict] out string[sym dict`id]," ",$[1f=val;"halted";"tradable"]}
 .ib.reg[`connectionClosed] {[x] out"Connection closed"}
 
 .ib.reg[`currentTime] {out"Current time: ",string x}
-.ib.reg[`nextValidId] {.ib.nextId::x; out"Next valid ID: ",string x}
+.ib.reg[`nextValidId] {
+	.ib.nextId::x; out"Next valid ID: ",string x;
+	if[not .ib.ready;.ib.ready::1b]; / this is the last event in the login sequence
+ };
 
 .ib.reg[`tickPrice] {[id;field;price;ae]
 	$[null f:tick[field];
@@ -68,11 +73,11 @@ tick[49]:{[val;dict] out string[sym dict`id]," ",$[1f=val;"halted";"tradable"]}
  };
 
 .ib.reg[`tickEFP] {[dict]
-	out"tickEFP"
+	out"tickEFP - ",format dict
  };
 
 .ib.reg[`orderStatus] {[dict]
-	out"orderStatus"
+	out"orderStatus - ",format dict
  };
 
 .ib.reg[`tickOptionComputation] {[dict]
@@ -80,19 +85,19 @@ tick[49]:{[val;dict] out string[sym dict`id]," ",$[1f=val;"halted";"tradable"]}
  };
 
 .ib.reg[`updateAccountValue] {[updkey;val;ccy;accName]
-	out"updateAccountValue"
+	out"updateAccountValue - ",format `key`value`currency`accountName!(updkey;val;ccy;accName)
  };
 
 .ib.reg[`updatePortfolio] {[dict]
-	out"updatePortfolio"
+	out"updatePortfolio - ",format dict
  };
 
 .ib.reg[`updateAccountTime] {[ts]
-	out"updateAccountTime - ",string zu "J"$ts
+	out"updateAccountTime - ",string .z.D+"T"$ts
  };
 
 .ib.reg[`openOrder] {[dict]
-	out"openOrder"
+	out"openOrder - ",format dict
  };
 
 .ib.reg[`updateMktDepth] {[id;position;operation;side;price;size]
@@ -104,11 +109,11 @@ tick[49]:{[val;dict] out string[sym dict`id]," ",$[1f=val;"halted";"tradable"]}
  };
 
 .ib.reg[`realtimeBar] {[dict]
-	out"realtimeBar"
+	out"realtimeBar - ",format dict
  };
 
 .ib.reg[`position] {[account;conId;position;avgCost]
-	out"position"
+	out"position - ",format `account`conId`position`avgCost!(account;conId;position;avgCost)
  };
 
 .ib.reg[`positionEnd] {
@@ -124,7 +129,9 @@ tick[49]:{[val;dict] out string[sym dict`id]," ",$[1f=val;"halted";"tradable"]}
  };
 
 .ib.reg[`execDetails] {[reqId;contractId;execution]
-	out"execDetails"
+	out"execDetails:";
+	-1 format `reqId`contractId!(reqId;contractId);
+	-1 format execution;
  };
 
 .ib.reg[`execDetailsEnd] {[reqId]
@@ -140,7 +147,7 @@ tick[49]:{[val;dict] out string[sym dict`id]," ",$[1f=val;"halted";"tradable"]}
  };
 
 .ib.reg[`accountDownloadEnd] {[accountName]
-	out"accountDownloadEnd"
+	out"accountDownloadEnd - ",accountName
  };
 
 .ib.reg[`openOrder] {[orderId;contractId;state]
@@ -156,7 +163,7 @@ tick[49]:{[val;dict] out string[sym dict`id]," ",$[1f=val;"halted";"tradable"]}
  };
 
 .ib.reg[`historicalData] {[dict]
-	out"historicalData"
+	out"historicalData - ",format dict
  };
 
 .ib.reg[`scannerParameters] {[xml]
@@ -172,7 +179,8 @@ tick[49]:{[val;dict] out string[sym dict`id]," ",$[1f=val;"halted";"tradable"]}
  };
 
 .ib.reg[`managedAccounts] {[accountsList]
-	out"managedAccounts: ",accountsList
+	out"managedAccounts: ",accountsList;
+	.ib.managedAccounts:`$"," vs accountsList;
  };
 
 .ib.reg[`deltaNeutralValidation] {[reqId;underComp]

@@ -37,4 +37,9 @@
 		.ib.reg[fname] {sum x};
 		.ib.onrecv[fname;args] musteq `a`b!6 15;
 	};
+	should["call known functions with a string"]{
+		`args mock "hello";
+		.ib.reg[fname] {x};
+		.ib.onrecv[fname;args] musteq args;
+	};
  };
