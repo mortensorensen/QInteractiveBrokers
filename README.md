@@ -8,6 +8,8 @@ make
 ````
 Optionally, run `cmake -G Xcode ..` to generate an XCode project or `cmake -G MSVC ..` for Microsoft Visual Studio.
 
+NB: Only tested on MacOS.
+
 # Running
 Running the following command will dynamically link the QIB functions into the `.ib` namespace:
 ````
@@ -25,3 +27,9 @@ To upgrade the TWS API download the source files from http://interactivebrokers.
 cd third_party/ib
 tar -xvf twsapi_macunix.971.01.jar
 ````
+
+# Class Reference
+[Contract](https://interactivebrokers.github.io/tws-api/classIBApi_1_1Contract.html)
+[Order](https://interactivebrokers.github.io/tws-api/classIBApi_1_1Order.html)
+[ExecutionFilter](https://interactivebrokers.github.io/tws-api/classIBApi_1_1ExecutionFilter.html)
+[ScannerSubscription](https://interactivebrokers.github.io/tws-api/classIBApi_1_1ScannerSubscription.html)
