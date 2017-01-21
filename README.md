@@ -8,7 +8,9 @@ make
 ````
 Optionally, run `cmake -G Xcode ..` to generate an XCode project or `cmake -G MSVC ..` for Microsoft Visual Studio.
 
-NB: Only tested on MacOS.
+The program will build a 32-bit binary by default. To build a 64-bit, run `cmake -DBUILD_x64 ..`. For cross compilation (compile 32-bit on a 64-bit system) you need a few extra packages. Please see `Dockerfile` for an example of how to do this on Linux.
+
+NB: The program is only tested on MacOS and Ubuntu Linux.
 
 # Running
 Running the following command will dynamically link the QIB functions into the `.ib` namespace:

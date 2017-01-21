@@ -36,6 +36,7 @@ start:{
 	reqMktData[];
 	reqAccountUpdates[];
 	reqPositions[];
+	reqExecutions[];
 	reqAllOpenOrders[];
 	reqContractDetails[];
  };
@@ -49,9 +50,9 @@ started:0b
 
 \
 reqManagedAccts[];
-reqExecutions[];
-
-.ib.reqContractDetails[1;enlist[`conId]!enlist 265598]
+.ib.onrecv:{[fname;args] show (fname;args)};
+\c 50 500
+.ib.reqContractDetails[1;enlist[`conId]!enlist 272093]
 
 out"Placing order"
 
