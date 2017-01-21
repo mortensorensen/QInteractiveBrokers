@@ -32,6 +32,9 @@ tar -xvf twsapi_macunix.971.01.jar
 
 # Class Reference
 [Contract](https://interactivebrokers.github.io/tws-api/classIBApi_1_1Contract.html)
+
 [Order](https://interactivebrokers.github.io/tws-api/classIBApi_1_1Order.html)
+
 [ExecutionFilter](https://interactivebrokers.github.io/tws-api/classIBApi_1_1ExecutionFilter.html)
+
 [ScannerSubscription](https://interactivebrokers.github.io/tws-api/classIBApi_1_1ScannerSubscription.html)
