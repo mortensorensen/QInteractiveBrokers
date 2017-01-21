@@ -2,7 +2,7 @@ out:{-1 string[.z.Z]," ",x;}
 zu:{"z"$-10957+x%8.64e4} / kdb+ datetime from unix
 format:{ssr[ssr[;"\"";""] .j.j x;",";", "]}
 
-.ib:(`:build/Debug/qib.0.0.1 2:(`LoadLibrary;1))`
+.ib:(`:bin/qib.0.0.1 2:(`LoadLibrary;1))`
 .ib.onrecv:{[fname;args] value (enlist $[null func:.ib.callbacks[fname];.ib.unknown;func]),$[type[args] in 10 98 99h;enlist;::] args};
 .ib.callbacks:()!()
 .ib.unknown:{[fname;args] out" unknown function ",(string fname),", args: ";0N!args}
@@ -96,10 +96,6 @@ tick[49]:{[val;dict] out string[sym dict`id]," ",$[1f=val;"halted";"tradable"]}
 	out"updateAccountTime - ",string .z.D+"T"$ts
  };
 
-.ib.reg[`openOrder] {[dict]
-	out"openOrder - ",format dict
- };
-
 .ib.reg[`updateMktDepth] {[id;position;operation;side;price;size]
 	out"updateMktDepth"
  };
@@ -112,8 +108,8 @@ tick[49]:{[val;dict] out string[sym dict`id]," ",$[1f=val;"halted";"tradable"]}
 	out"realtimeBar - ",format dict
  };
 
-.ib.reg[`position] {[account;conId;position;avgCost]
-	out"position - ",format `account`conId`position`avgCost!(account;conId;position;avgCost)
+.ib.reg[`position] {[account;contract;position;avgCost]
+	out"position - ",format `account`contract`position`avgCost!(account;contract;position;avgCost)
  };
 
 .ib.reg[`positionEnd] {
@@ -128,10 +124,9 @@ tick[49]:{[val;dict] out string[sym dict`id]," ",$[1f=val;"halted";"tradable"]}
 	out"accountSummaryEnd"
  };
 
-.ib.reg[`execDetails] {[reqId;contractId;execution]
+.ib.reg[`execDetails] {[reqId;contract;execution]
 	out"execDetails:";
-	-1 format `reqId`contractId!(reqId;contractId);
-	-1 format execution;
+	-1 format `reqId`contract`execution!(reqId;contract;execution);
  };
 
 .ib.reg[`execDetailsEnd] {[reqId]
@@ -150,8 +145,8 @@ tick[49]:{[val;dict] out string[sym dict`id]," ",$[1f=val;"halted";"tradable"]}
 	out"accountDownloadEnd - ",accountName
  };
 
-.ib.reg[`openOrder] {[orderId;contractId;state]
-	out"openOrder"
+.ib.reg[`openOrder] {[orderId;contract;order;state]
+	out"openOrder",format `orderId`contract`order`state!(orderId;contract;order;state)
  };
 
 .ib.reg[`openOrderEnd] {
@@ -189,6 +184,10 @@ tick[49]:{[val;dict] out string[sym dict`id]," ",$[1f=val;"halted";"tradable"]}
 
 .ib.reg[`scannerDataEnd] {[reqId]
 	out"scannerDataEnd"
+ };
+
+.ib.reg[`contractDetails] {[reqId;dict]
+	out"contractDetails - ",format dict
  };
 
 .ib.reg[`contractDetailsEnd] {[reqId]

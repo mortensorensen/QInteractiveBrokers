@@ -77,8 +77,8 @@ K IBClient::convertContract(const Contract &contract)
         { "secIdType",          kis(contract.secIdType) },
         { "secId",              kis(contract.secId) },
         // COMBOS - TODO ...
-        { "comboLegsDescrip",   ks((S)"") },
-        { "comboLegList",       ks((S)"") }
+        { "comboLegsDescrip",   identity() },
+        { "comboLegList",       identity() }
     });
     R dict;
 }
@@ -103,7 +103,7 @@ K IBClient::convertContractDetails(const ContractDetails &contract)
         { "liquidHours",    kip(contract.liquidHours) },
         { "evRule",         kip(contract.evRule) },
         { "evMultiplier",   kf(contract.evMultiplier) },
-        { "secIdList",      ks((S)"") } // TODO
+        { "secIdList",      identity() } // TODO
     });
     R dict;
 }
@@ -473,6 +473,7 @@ void IBClient::error(const int id, const int errorCode, const IBString errorStri
     // "Connectivity between IB and TWS has been lost"
     if (id == -1 && errorCode == 1100) {
         disconnect();
+        receiveData("disconnect", identity());
     }
     
     // Exception caught while reading socket - Connection reset by peer
@@ -560,7 +561,7 @@ void IBClient::orderStatus(OrderId orderId, const IBString &status, int filled, 
 
 void IBClient::connectionClosed()
 {
-    receiveData("connectionClosed", ks((S)""));
+    receiveData("connectionClosed", identity());
 }
 
 void IBClient::updateAccountValue(const IBString &key, const IBString &val, const IBString &currency, const IBString &accountName)
@@ -647,7 +648,7 @@ void IBClient::position(const IBString &account, const Contract &contract, int p
 
 void IBClient::positionEnd()
 {
-    receiveData("positionEnd", ks((S)""));
+    receiveData("positionEnd", identity());
 }
 
 void IBClient::accountSummary(int reqId, const IBString &account, const IBString &tag, const IBString &value, const IBString &curency)
@@ -708,7 +709,7 @@ void IBClient::openOrder(OrderId orderId, const Contract &contract, const Order 
 
 void IBClient::openOrderEnd()
 {
-    receiveData("openOrderEnd", ks((S)""));
+    receiveData("openOrderEnd", identity());
 }
 
 void IBClient::marketDataType(TickerId reqId, int marketDataType)
@@ -770,7 +771,7 @@ void IBClient::scannerDataEnd(int reqId)
 
 void IBClient::contractDetails(int reqId, const ContractDetails& contractDetails)
 {
-    receiveData("orderStatus", knk(2, kj(reqId), convertContractDetails(contractDetails)));
+    receiveData("contractDetails", knk(2, kj(reqId), convertContractDetails(contractDetails)));
 }
 
 void IBClient::contractDetailsEnd(int reqId)

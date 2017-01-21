@@ -24,7 +24,7 @@ public:
     int fd() const;
     void onReceive();
     
-    std::auto_ptr<EPosixClientSocket> socket;
+    std::unique_ptr<EPosixClientSocket> socket;
     
 private:
     void receiveData(const char *fun, K x);
@@ -43,23 +43,23 @@ public:
     int serverVersion();
     void calculateImpliedVolatility(TickerId reqId, const Contract &contract, double optionPrice, double underPrice);
     void calculateOptionPrice(TickerId reqId, const Contract &contract, double volatility, double underPrice);
-    void cancelAccountSummary( int reqId);
+    void cancelAccountSummary(int reqId);
     void cancelCalculateImpliedVolatility(TickerId reqId);
     void cancelCalculateOptionPrice(TickerId reqId);
     void cancelFundamentalData(TickerId reqId);
-    void cancelHistoricalData(TickerId tickerId );
+    void cancelHistoricalData(TickerId tickerId);
     void cancelMktData(TickerId id);
     void cancelMktDepth(TickerId tickerId);
     void cancelNewsBulletins();
     void cancelOrder(OrderId id);
     void cancelPositions();
-    void cancelRealTimeBars(TickerId tickerId );
+    void cancelRealTimeBars(TickerId tickerId);
     void cancelScannerSubscription(int tickerId);
     void exerciseOptions(TickerId tickerId, const Contract &contract, int exerciseAction, int exerciseQuantity, const IBString &account, int override);
     void placeOrder(OrderId id, const Contract &contract, const Order &order);
-    void queryDisplayGroups( int reqId);
+    void queryDisplayGroups(int reqId);
     void replaceFA(faDataType pFaDataType, const IBString& cxml);
-    void reqAccountSummary( int reqId, const IBString& groupName, const IBString& tags);
+    void reqAccountSummary(int reqId, const IBString& groupName, const IBString& tags);
     void reqAccountUpdates(bool subscribe, const IBString& acctCode);
     void reqAllOpenOrders();
     void reqAutoOpenOrders(bool bAutoBind);
@@ -82,26 +82,26 @@ public:
     void reqScannerSubscription(int tickerId, const ScannerSubscription &subscription, const TagValueListSPtr& scannerSubscriptionOptions);
     void requestFA(faDataType pFaDataType);
     void setServerLogLevel(int level);
-    void subscribeToGroupEvents( int reqId, int groupId);
-    void unsubscribeFromGroupEvents( int reqId);
-    void updateDisplayGroup( int reqId, const IBString& contractInfo);
-    void verifyMessage( const IBString& apiData);
-    void verifyRequest( const IBString& apiName, const IBString& apiVersion);
+    void subscribeToGroupEvents(int reqId, int groupId);
+    void unsubscribeFromGroupEvents(int reqId);
+    void updateDisplayGroup(int reqId, const IBString& contractInfo);
+    void verifyMessage(const IBString& apiData);
+    void verifyRequest(const IBString& apiName, const IBString& apiVersion);
     
 public:
     // Events
     void accountDownloadEnd(const IBString& accountName);
-    void accountSummary( int reqId, const IBString& account, const IBString& tag, const IBString& value, const IBString& curency);
-    void accountSummaryEnd( int reqId);
+    void accountSummary(int reqId, const IBString& account, const IBString& tag, const IBString& value, const IBString& curency);
+    void accountSummaryEnd(int reqId);
     void bondContractDetails(int reqId, const ContractDetails& contractDetails);
-    void commissionReport( const CommissionReport& commissionReport);
+    void commissionReport(const CommissionReport& commissionReport);
     void connectionClosed();
     void contractDetails(int reqId, const ContractDetails& contractDetails);
     void contractDetailsEnd(int reqId);
     void currentTime(long time);
     void deltaNeutralValidation(int reqId, const UnderComp& underComp);
-    void displayGroupList( int reqId, const IBString& groups);
-    void displayGroupUpdated( int reqId, const IBString& contractInfo);
+    void displayGroupList(int reqId, const IBString& groups);
+    void displayGroupUpdated(int reqId, const IBString& contractInfo);
     void error(const int id, const int errorCode, const IBString errorString);
     void execDetails(int reqId, const Contract& contract, const Execution& execution);
     void execDetailsEnd(int reqId);
@@ -113,7 +113,7 @@ public:
     void openOrder(OrderId orderId, const Contract&, const Order&, const OrderState&);
     void openOrderEnd();
     void orderStatus(OrderId orderId, const IBString &status, int filled, int remaining, double avgFillPrice, int permId, int parentId, double lastFillPrice, int clientId, const IBString& whyHeld);
-    void position( const IBString& account, const Contract& contract, int position, double avgCost);
+    void position(const IBString& account, const Contract& contract, int position, double avgCost);
     void positionEnd();
     void realtimeBar(TickerId reqId, long time, double open, double high, double low, double close, long volume, double wap, int count);
     void receiveFA(faDataType pFaDataType, const IBString& cxml) {};
@@ -122,7 +122,7 @@ public:
     void scannerParameters(const IBString &xml);
     void tickEFP(TickerId tickerId, TickType tickType, double basisPoints, const IBString& formattedBasisPoints, double totalDividends, int holdDays, const IBString& futureExpiry, double dividendImpact, double dividendsToExpiry);
     void tickGeneric(TickerId tickerId, TickType tickType, double value);
-    void tickOptionComputation( TickerId tickerId, TickType tickType, double impliedVol, double delta, double optPrice, double pvDividend, double gamma, double vega, double theta, double undPrice);
+    void tickOptionComputation(TickerId tickerId, TickType tickType, double impliedVol, double delta, double optPrice, double pvDividend, double gamma, double vega, double theta, double undPrice);
     void tickSize(TickerId tickerId, TickType field, int size);
     void tickSnapshotEnd(int reqId);
     void tickString(TickerId tickerId, TickType tickType, const IBString& value);
@@ -132,8 +132,8 @@ public:
     void updateMktDepthL2(TickerId id, int position, IBString marketMaker, int operation, int side, double price, int size);
     void updateNewsBulletin(int msgId, int msgType, const IBString& newsMessage, const IBString& originExch);
     void updatePortfolio(const Contract& contract, int position, double marketPrice, double marketValue, double averageCost, double unrealizedPNL, double realizedPNL, const IBString& accountName);
-    void verifyCompleted( bool isSuccessful, const IBString& errorText);
-    void verifyMessageAPI( const IBString& apiData);
+    void verifyCompleted(bool isSuccessful, const IBString& errorText);
+    void verifyMessageAPI(const IBString& apiData);
     void winError(const IBString &str, int lastError);
     void tickPrice(TickerId tickerId, TickType field, double price, int canAutoExecute);
 };

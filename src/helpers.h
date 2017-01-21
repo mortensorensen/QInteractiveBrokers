@@ -3,6 +3,7 @@
 
 #include <string>
 #include <map>
+#include <memory>
 
 #include "k.h"
 
@@ -59,6 +60,13 @@ Z K createDictionary(std::map<std::string, K> map)
         jk(&vals, it->second);
     }
     R xD(keys, vals);
+}
+
+Z K identity()
+{
+    K id = ka(101);
+    id->g = 0;
+    R id;
 }
 
 #endif
