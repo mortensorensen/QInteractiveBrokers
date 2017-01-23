@@ -43,7 +43,7 @@ K LoadLibrary(K ignore)
     auto dict = createDictionary(std::map<std::string, K> {
         { "version",                dl((V*) version,            1) },
         // EPosixClientSocket
-        { "connect",                dl((V*) connect,            3) },
+        { "connect",                dl((V*) connect_,            3) },
         { "disconnect",             dl((V*) disconnect,         1) },
         { "isConnected",            dl((V*) isConnected,        1) },
         // EClientSocketBase
@@ -52,7 +52,7 @@ K LoadLibrary(K ignore)
         { "cancelCalculateImpliedVolatility", dl((V*) cancelCalculateImpliedVolatility, 1) },
         { "cancelCalculateOptionPrice", dl((V*) cancelCalculateOptionPrice, 1) },
         { "cancelFundamentalData",  dl((V*) cancelFundamentalData, 1) },
-        { "cancelHistoricalData",  dl((V*) cancelHistoricalData, 1) },
+        { "cancelHistoricalData",   dl((V*) cancelHistoricalData, 1) },
         { "cancelMktData",          dl((V*) cancelMktData,      1) },
         { "cancelMktDepth",         dl((V*) cancelMktDepth,     1) },
         { "cancelNewsBulletins",    dl((V*) cancelNewsBulletins,1) },
@@ -108,7 +108,7 @@ K eventLoop(I fd)
 // EPosixClientSocket
 ///////////////////////
 
-K connect(K host, K port, K clientId)
+K connect_(K host, K port, K clientId)
 {
     Q(host->t != -KS || port->t != -KJ || clientId->t != -KJ, "type");
     

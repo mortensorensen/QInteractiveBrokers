@@ -12,7 +12,7 @@ extern "C"
 {
     K version(K ignore);
     K LoadLibrary(K ignore);
-    K connect(K host, K port, K clientId);
+    K connect_(K host, K port, K clientId);
     K disconnect(K ignore);
     K isConnected(K ignore);
     

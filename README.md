@@ -15,7 +15,7 @@ NB: The program is only tested on MacOS and Ubuntu Linux.
 # Running
 Running the following command will dynamically link the QIB functions into the `.ib` namespace:
 ````
-.ib:(`:build/Debug/qib.0.0.1 2:(`LoadLibrary;1))`
+.ib:(`:bin/qib.0.0.1 2:(`LoadLibrary;1))`
 ````
 The program must have the function `.ib.onrecv` defined which should take two arguments; function name and arguments, e.g.:
 ````

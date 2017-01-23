@@ -18,7 +18,9 @@ RUN mkdir -p $QIB \
 	&& apt-get update && apt-get install -y \
 	wget \
 	unzip \
+	vim \
 	
+	# For running 32-bit on 64-bit system
 	build-essential \
 	gcc-multilib \
 	g++-multilib \
