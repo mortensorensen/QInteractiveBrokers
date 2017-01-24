@@ -604,7 +604,7 @@ template<> V setAtom(IBString *property, K x, G type, std::string &error)
 }
 
 template<typename T>
-V setItem(T &property, I type, K x, I index, std::string &error)
+V setList(T &property, I type, K x, I index, std::string &error)
 {
     SW(xt) {
         CS( 0, setProperty(property, type, kK(x)[index], index, error))
@@ -626,15 +626,18 @@ V setItem(T &property, I type, K x, I index, std::string &error)
 template<typename T>
 V setProperty(T &property, I expectedType, K x, I index, std::string &error)
 {
-    I xtype = (0 < xt) && (xt < 20) ? -xt : kK(x)[index]->t;
-    if (xtype != expectedType) {
-        error = stringFormat("Invalid type: %i. Expected %i", xtype, expectedType);
+    I xt0 = xt < 0 ? xt : (0 < xt) && (xt < 20) ? -xt : kK(x)[index]->t;
+    if (xt0 != expectedType) {
+        error = stringFormat("Invalid type: %i. Expected %i", xt0, expectedType);
         R;
     }
     
     if (xt < 0) setAtom(property, x, expectedType, error);
-    else if ((0 <= xt) && (xt < 20)) setItem(property, expectedType, x, index, error);
-    else R;
+    else if ((0 <= xt) && (xt < 20)) setList(property, expectedType, x, index, error);
+    else {
+        error = stringFormat("nyi for type %i", xt);
+        R;
+    }
 }
 
 V setProperties(K dict, std::map<std::string, std::function<V(K x, I i, std::string &err)>> &props, std::string &error)
@@ -654,9 +657,12 @@ V setProperties(K dict, std::map<std::string, std::function<V(K x, I i, std::str
         auto it = props.find(key);
         if (it != props.end()) {
             (it->second)(vals, i, error);
-            if (!error.empty()) R;
+            if (!error.empty()) {
+                error = stringFormat("Key: %s - %s", key.c_str(), error.c_str());
+                R;
+            }
         } else {
-            error = "Key not recognized: " + key;
+            error = stringFormat("Key not recognized: %s", key.c_str());
             R;
         }
     }
@@ -708,7 +714,7 @@ Z Order createOrder(K dict, std::string &error)
         { "blockOrder",     partial(f, &o.blockOrder,   -KB) },
         { "displaySize",    partial(f, &o.displaySize,  -KI) },
         { "goodAfterTime",  partial(f, &o.goodAfterTime, -KZ) },
-        { "goodTilDate",    partial(f, &o.goodTillDate, -KZ) },
+        { "goodTillDate",   partial(f, &o.goodTillDate, -KZ) },
         { "hidden",         partial(f, &o.hidden,       -KB) },
         { "minQty",         partial(f, &o.minQty,       -KI) },
         { "ocaGroup",       partial(f, &o.ocaGroup,     -KS) },

@@ -22,16 +22,16 @@ file (GLOB_RECURSE QIB_SRC "${CMAKE_SOURCE_DIR}/src/*.cpp")
 add_library (${BINARY_NAME} SHARED ${QIB_SRC})
 
 include_directories ("${CMAKE_BINARY_DIR}/include"
-										 "${CMAKE_SOURCE_DIR}/third_party/kx"
-										 "${CMAKE_SOURCE_DIR}/third_party/ib/IBJts/source/PosixClient/Shared"
-										 "${CMAKE_SOURCE_DIR}/third_party/ib/IBJts/source/PosixClient/src")
+	"${CMAKE_SOURCE_DIR}/third_party/kx"
+	"${CMAKE_SOURCE_DIR}/third_party/ib/IBJts/source/PosixClient/Shared"
+	"${CMAKE_SOURCE_DIR}/third_party/ib/IBJts/source/PosixClient/src")
 
 add_definitions (-DKXVER=3 -DIB_USE_STD_STRING)
 
 set_target_properties (${BINARY_NAME} PROPERTIES
-		PREFIX ""
-		CXX_STANDARD 14
-		CXX_STANDARD_REQUIRED ON)
+	PREFIX ""
+	CXX_STANDARD 14
+	CXX_STANDARD_REQUIRED ON)
 
 set (CMAKE_CONFIGURATION_TYPES "Release;Debug;MinSizeRel;RelWithDebInfo")
 
@@ -50,6 +50,7 @@ endif ()
 if (NOT ${BUILD_x64})
 	set (CMAKE_LIBRARY_ARCHITECTURES i386)
 	if (${CMAKE_SYSTEM} MATCHES "Darwin")
+		set (CMAKE_OSX_ARCHITECTURES i386)
 		set (ARCHFLAGS "-arch i386 -DMac32")
 	elseif (${CMAKE_SYSTEM} MATCHES "Linux")
 		set (ARCHFLAGS "-march=i386")

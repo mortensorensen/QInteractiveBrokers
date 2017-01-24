@@ -73,7 +73,7 @@ Z ExecutionFilter createExecutionFilter(K dict, std::string &error);
 Z ScannerSubscription createScannerSubscription(K dict, std::string &error);
 Z TagValueListSPtr createTagValueList(K dict, std::string &error);
 
-template<typename T> V setItem(T &property, G type, K x, I index, std::string &error);
+template<typename T> V setList(T &property, G type, K x, I index, std::string &error);
 template<typename T> V setProperty(T &property, I expectedType, K x, I index, std::string &error);
 V setProperties(K dict, std::map<std::string, std::function<void(Contract&)>> &map, std::string &error);
 
