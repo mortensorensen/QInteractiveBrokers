@@ -213,8 +213,9 @@ bool EPosixClientSocket::handleSocketError()
 		getWrapper()->error( NO_VALID_ID, CONNECT_FAIL.code(), CONNECT_FAIL.msg());
 	}
 	else {
-		getWrapper()->error( NO_VALID_ID, SOCKET_EXCEPTION.code(),
-			SOCKET_EXCEPTION.msg() + strerror(errno));
+//		getWrapper()->error( NO_VALID_ID, SOCKET_EXCEPTION.code(),
+//			SOCKET_EXCEPTION.msg() + strerror(errno));
+        return true;
 	}
 	// reset errno
 	errno = 0;
