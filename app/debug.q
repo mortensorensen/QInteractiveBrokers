@@ -27,7 +27,7 @@ reqPositions:{out"Requesting positions";.ib.reqPositions[];}
 reqAllOpenOrders:{out"Requesting all open orders";.ib.reqAllOpenOrders[]};
 reqContractDetails:{out"Requesting contract details";.ib.reqContractDetails[1;first contract]}
 reqManagedAccts:{out"Requesting managed accounts";.ib.reqManagedAccts[]}
-reqExecutions:{.ib.reqExecutions[1;enlist[`acctCode]!enlist first .ib.managedAccounts]}
+reqExecutions:{.ib.reqExecutions[first 1?100;enlist[`acctCode]!enlist first .ib.managedAccounts]}
 
 start:{
 	serverVersion[];
@@ -37,8 +37,8 @@ start:{
 	reqAccountUpdates[];
 	reqPositions[];
 	reqExecutions[];
-	reqAllOpenOrders[];
-	reqContractDetails[];
+	/ reqAllOpenOrders[];
+	/ reqContractDetails[];
  };
 
 started:0b

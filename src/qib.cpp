@@ -692,6 +692,7 @@ Z Contract createContract(K dict, std::string &error)
         { "tradingClass",   partial(f, &c.tradingClass, -KS) }
     };
     setProperties(dict, *map, error);
+    if (!error.empty()) error = "createContract: " + error;
     R c;
 }
 
@@ -745,6 +746,7 @@ Z Order createOrder(K dict, std::string &error)
         { "optOutSmartRouting", partial(f, &o.optOutSmartRouting, -KB) }
     };
     setProperties(dict, *map, error);
+    if (!error.empty()) error = "createOrder: " + error;
     R o;
 }
 
@@ -761,6 +763,7 @@ Z ExecutionFilter createExecutionFilter(K dict, std::string &error)
         { "side",       partial(f, &ef.m_side,         -KS) }
     };
     setProperties(dict, *map, error);
+    if (!error.empty()) error = "createExecutionFilter: " + error;
     R ef;
 }
 
@@ -792,6 +795,7 @@ Z ScannerSubscription createScannerSubscription(K dict, std::string &error)
         
     };
     setProperties(dict, *map, error);
+    if (!error.empty()) error = "createScannerSubscription: " + error;
     R ss;
 }
 

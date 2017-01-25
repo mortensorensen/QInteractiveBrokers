@@ -126,7 +126,7 @@ tick[49]:{[val;dict] out string[sym dict`id]," ",$[1f=val;"halted";"tradable"]}
 
 .ib.reg[`execDetails] {[reqId;contract;execution]
 	out"execDetails:";
-	-1 format `reqId`contract`execution!(reqId;contract;execution);
+	/ -1 format `reqId`contract`execution!(reqId;contract;execution);
  };
 
 .ib.reg[`execDetailsEnd] {[reqId]
