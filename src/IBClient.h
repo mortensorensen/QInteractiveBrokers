@@ -28,6 +28,7 @@ public:
     
 private:
     void receiveData(const char *fun, K x);
+    K convertOrder(const Order &order);
     K convertContract(const Contract &contract);
     K convertContractDetails(const ContractDetails &contract);
     K convertBondContractDetails(const ContractDetails &contract);

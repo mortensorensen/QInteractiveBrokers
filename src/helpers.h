@@ -4,15 +4,19 @@
 #include <string>
 #include <map>
 #include <memory>
+#include <sstream>
 
 #include "k.h"
 
 #define Q(x, e) if(x) { krr((S)e); R 0; }
 #define kip(x) kp((S)x.c_str())
 #define kis(x) ks((S)x.c_str())
+#define kts(x) ktj(-KP, pu(x))
 
 inline F zu(I u) { return u / 8.64e4 - 10957; }  // kdb+ datetime from unix
 inline I uz(F f) { return 86400 * (f + 10957); } // unix from kdb+ datetime
+inline J pu(I u) { return 8.64e13 * (u / 8.64e4 - 10957); } // kdb+ timestamp from unix
+inline I up(J f) { return (f / 8.64e13 + 10957) * 8.64e4; } // unix from kdb+ timestamp
 
 template<typename ... Args>
 std::string stringFormat(const std::string& format, Args ... args )
@@ -32,6 +36,18 @@ static std::string formatTime(const char *str, time_t time, int adjusted)
     strftime(buffer, sizeof(buffer), str, timeinfo);
     
     return stringFormat("%s", buffer);
+}
+
+static std::string getString(K x)
+{
+    if (abs(x->t) != KC)
+        throw std::runtime_error("type");
+    if (x->t == -KC)
+        return x->s;
+    
+    std::stringstream ss;
+    DO(xn, ss << kc(kC(x)[i])->g);
+    R ss.str();
 }
 
 template<class F, class V>

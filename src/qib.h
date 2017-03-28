@@ -44,7 +44,7 @@ extern "C"
     K reqExecutions(K reqId, K filter);
     K reqFundamentalData(K reqId, K contract, K reportType);
     K reqGlobalCancel(K ignore);
-    K reqHistoricalData(K dict);
+    K reqHistoricalData(K id, K contract, K endDateTime, K durationStr, K barSizeSetting, K whatToShow, K useRTH);
     K reqIds(K numIds);
     K reqManagedAccts(K ignore);
     K reqMarketDataType(K marketDataType);

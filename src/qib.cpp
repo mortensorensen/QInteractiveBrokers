@@ -73,7 +73,7 @@ K LoadLibrary(K ignore)
         { "reqExecutions",          dl((V*) reqExecutions,      2) },
         { "reqFundamentalData",     dl((V*) reqFundamentalData, 3) },
         { "reqGlobalCancel",        dl((V*) reqGlobalCancel,    1) },
-        { "reqHistoricalData",      dl((V*) reqHistoricalData,  1) },
+        { "reqHistoricalData",      dl((V*) reqHistoricalData,  7) },
         { "reqIds",                 dl((V*) reqIds,             1) },
         { "reqManagedAccts",        dl((V*) reqManagedAccts,    1) },
         { "reqMarketDataType",      dl((V*) reqMarketDataType,  1) },
@@ -363,11 +363,26 @@ K reqGlobalCancel(K ignore)
     R (K)0;
 }
 
-K reqHistoricalData(K dict)
+K reqHistoricalData(K id, K contract, K endDateTime, K durationStr, K barSizeSetting, K whatToShow, K useRTH)
 {
-    Q(dict->t != XD, "type");
-    // K id, K contract, K endDateTime, K durationStr, K barSizeSetting, K whatToShow, K useRTH, K formatDate, K chartOptions
-    R krr((S)"nyi");
+    Q(id->t != -KJ || contract->t != XD || endDateTime->t != -KZ || durationStr->t != KC || barSizeSetting->t != KC ||
+      whatToShow->t != KC || useRTH->t != -KB, "type");
+    
+    std::string error;
+    auto c = createContract(contract, error);
+    Q(!error.empty(), error.c_str());
+    
+    TagValueListSPtr chartOptions;
+    ib->reqHistoricalData(id->j,
+                          c,
+                          formatTime("%Y%m%d %H:%M:%S", ((endDateTime->f) + 10957)*8.64e4, 0),
+                          getString(durationStr),
+                          getString(barSizeSetting),
+                          getString(whatToShow),
+                          static_cast<I>(useRTH->g),
+                          2,
+                          chartOptions);
+    R (K)0;
 }
 
 K reqIds(K numIds)
@@ -598,7 +613,7 @@ template<> V setAtom(IBString *property, K x, G type, std::string &error)
         CS(-KS, *property = x->s);                                                          // symbol
         CS(-KM, *property = stringFormat("%04d%02d", (x->i)/12+2000, (x->i)%12+1));         // month
         CS(-KD, *property = formatTime("%Y%m%d", ((x->i) + 10957)*8.64e4, 0));              // date
-        CS(-KZ, *property = formatTime("%Y%m%dD %H:%M:%S", ((x->f) + 10957)*8.64e4, 0));    // datetime
+        CS(-KZ, *property = formatTime("%Y%m%d %H:%M:%S", ((x->f) + 10957)*8.64e4, 0));     // datetime
         CD: typeError(property, type);
     }
 }

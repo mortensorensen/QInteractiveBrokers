@@ -28,15 +28,27 @@ reqAllOpenOrders:{out"Requesting all open orders";.ib.reqAllOpenOrders[]};
 reqContractDetails:{out"Requesting contract details";.ib.reqContractDetails[1;first contract]}
 reqManagedAccts:{out"Requesting managed accounts";.ib.reqManagedAccts[]}
 reqExecutions:{.ib.reqExecutions[first 1?100;enlist[`acctCode]!enlist first .ib.managedAccounts]}
+reqHistoricalData:{
+	// void IBClient::reqHistoricalData(TickerId id, const Contract &contract, const IBString &endDateTime, const IBString &durationStr, const IBString &barSizeSetting, const IBString &whatToShow, int useRTH, int formatDate, const TagValueListSPtr &chartOptions)
+	tickerId:1;
+	contract:`symbol`secType`exchange`currency!(`IBM;`STK;`SMART;`USD);
+	endDateTime:"z"$2017.01.01;
+	durationStr:"1 D";
+	barSizeSetting:"1 day";
+	whatToShow:"MIDPOINT";
+	useRTH:1b;
+	.ib.reqHistoricalData[tickerId;contract;endDateTime;durationStr;barSizeSetting;whatToShow;useRTH];
+ };
 
 start:{
 	serverVersion[];
 	currentTime[];
 	TwsConnectionTime[];
-	reqMktData[];
-	reqAccountUpdates[];
-	reqPositions[];
-	reqExecutions[];
+	/ reqMktData[];
+	/ reqAccountUpdates[];
+	/ reqPositions[];
+	// reqExecutions[];
+	reqHistoricalData[];
 	/ reqAllOpenOrders[];
 	/ reqContractDetails[];
  };

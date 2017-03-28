@@ -59,6 +59,118 @@ void IBClient::receiveData(const char *fun, K x)
     r0(r);
 }
 
+K IBClient::convertOrder(const Order &order)
+{
+    auto dict = createDictionary(std::map<std::string, K> {
+        // order identifier
+        { "orderId",            kj(order.orderId) },
+        { "clientId",           kj(order.clientId) },
+        { "permId",             kj(order.permId) },
+        // main order fields
+        { "action",             kis(order.action) },
+        { "totalQuantity",      kj(order.totalQuantity) },
+        { "orderType",          kis(order.orderType) },
+        { "lmtPrice",           kf(order.lmtPrice) },
+        { "auxPrice",           kf(order.auxPrice) },
+        // extended order fields
+        { "tif",                kis(order.tif) },
+        { "activeStartTime",    kip(order.activeStartTime) },
+        { "activeStopTime",     kip(order.activeStopTime) },
+        { "ocaGroup",           kip(order.ocaGroup) },
+        { "ocaType",            ki(order.ocaType) },
+        { "orderRef",           kip(order.orderRef) },
+        { "transmit",           kb(order.transmit) },
+        { "parentId",           kj(order.parentId) },
+        { "blockOrder",         kb(order.blockOrder) },
+        { "sweepToFill",        kb(order.sweepToFill) },
+        { "displaySize",        ki(order.displaySize) },
+        { "triggerMethod",      ki(order.triggerMethod) },
+        { "outsideRth",         kb(order.outsideRth) },
+        { "hidden",             kb(order.hidden) },
+        { "goodAfterTime",      kip(order.goodAfterTime) },
+        { "goodTillDate",       kip(order.goodTillDate) },
+        { "rule80A",            kip(order.rule80A) },
+        { "allOrNone",          kb(order.allOrNone) },
+        { "minQty",             ki(order.minQty) },
+        { "percentOffset",      kf(order.percentOffset) },
+        { "overridePercentageConstraints", kb(order.overridePercentageConstraints) },
+        { "trailStopPrice",     kf(order.trailStopPrice) },
+        { "trailingPercent",    kf(order.trailingPercent) },
+        // financial advisors only
+        { "faGroup",            kip(order.faGroup) },
+        { "faProfile",          kip(order.faProfile) },
+        { "faMethod",           kip(order.faMethod) },
+        { "faPercentage",       kip(order.faPercentage) },
+        // institutional (ie non-cleared) only
+        { "openClose",          kip(order.openClose) },
+        { "origin",             ki(order.origin) }, // TODO: Convert
+        { "shortSaleSlot",      ki(order.shortSaleSlot) },
+        { "designatedLocation", kip(order.designatedLocation) },
+        { "exemptCode",         ki(order.exemptCode) },
+        // SMART routing only
+        { "discretionaryAmt",   kf(order.discretionaryAmt) },
+        { "eTradeOnly",         kb(order.eTradeOnly) },
+        { "firmQuoteOnly",      kb(order.firmQuoteOnly) },
+        { "nbboPriceCap",       kf(order.nbboPriceCap) },
+        { "optOutSmartRouting", kb(order.optOutSmartRouting) },
+        // BOX exchange orders only
+        { "auctionStrategy",    ki(order.auctionStrategy) },
+        { "startingPrice",      kf(order.startingPrice) },
+        { "stockRefPrice",      kf(order.stockRefPrice) },
+        { "delta",              kf(order.delta) },
+        // pegged to stock and VOL orders only
+        { "stockRangeLower",    kf(order.stockRangeLower) },
+        { "stockRangeUpper",    kf(order.stockRangeUpper) },
+        // VOLATILITY ORDERS ONLY
+        { "volatility",         kf(order.volatility) },
+        { "volatilityType",     ki(order.volatilityType) },
+        { "deltaNeutralOrderType", kis(order.deltaNeutralOrderType) },
+        { "deltaNeutralAuxPrice", kf(order.deltaNeutralAuxPrice) },
+        { "deltaNeutralConId",  kj(order.deltaNeutralConId) },
+        { "deltaNeutralSettlingFirm", kip(order.deltaNeutralSettlingFirm) },
+        { "deltaNeutralClearingAccount", kis(order.deltaNeutralClearingAccount) },
+        { "deltaNeutralClearingIntent", kip(order.deltaNeutralClearingIntent) },
+        { "deltaNeutralOpenClose", kip(order.deltaNeutralOpenClose) },
+        { "deltaNeutralShortSale", kb(order.deltaNeutralShortSale) },
+        { "deltaNeutralShortSaleSlot", ki(order.deltaNeutralShortSaleSlot) },
+        { "deltaNeutralDesignatedLocation", kip(order.deltaNeutralDesignatedLocation) },
+        { "continuousUpdate",   kb(order.continuousUpdate) },
+        { "referencePriceType", ki(order.referencePriceType) },
+        // COMBO ORDERS ONLY
+        { "basisPoints",        kf(order.basisPoints) },
+        { "basisPointsType",    ki(order.basisPointsType) },
+        // SCALE ORDERS ONLY
+        { "scaleInitLevelSize", ki(order.scaleInitLevelSize) },
+        { "scaleSubsLevelSize", ki(order.scaleSubsLevelSize) },
+        { "scalePriceIncrement", kf(order.scalePriceIncrement) },
+        { "scalePriceAdjustValue", kf(order.scalePriceAdjustValue) },
+        { "scalePriceAdjustInterval", ki(order.scalePriceAdjustInterval) },
+        { "scaleProfitOffset",  kf(order.scaleProfitOffset) },
+        { "scaleAutoReset",     kb(order.scaleAutoReset) },
+        { "scaleInitPosition",  ki(order.scaleInitPosition) },
+        { "scaleInitFillQty",   ki(order.scaleInitFillQty) },
+        { "scaleRandomPercent", kb(order.scaleRandomPercent) },
+        { "scaleTable",         kip(order.scaleTable) },
+        // HEDGE ORDERS
+        { "hedgeType",          kip(order.hedgeType) },
+        { "hedgeParam",         kip(order.hedgeParam) },
+        // Clearing info
+        { "account",            kip(order.account) },
+        { "settlingFirm",       kip(order.settlingFirm) },
+        { "clearingAccount",    kip(order.clearingAccount) },
+        { "clearingIntent",     kip(order.clearingIntent) },
+        // ALGO ORDERS ONLY
+        { "algoStrategy",       kip(order.algoStrategy) },
+        { "algoParams",         identity() }, // TODO
+        { "smartComboRoutingParams", identity() }, // TODO
+        // What-if
+        { "whatIf",             kb(order.whatIf) },
+        // Not Held
+        { "notHeld",            kb(order.notHeld) }
+    });
+    R dict;
+}
+
 K IBClient::convertContract(const Contract &contract)
 {
     auto dict = createDictionary(std::map<std::string, K> {
@@ -137,17 +249,17 @@ K IBClient::convertExecution(const Execution &execution)
     std::tm time;
     std::istringstream ss(execution.time);
     ss >> std::get_time(&time, "%Y%m%d %T");
-    
+
     auto dict = createDictionary(std::map<std::string, K> {
-        { "execId",         kis(execution.execId) },
-        { "time",           ss.fail() ? kip(execution.time) : kz(zu(mktime(&time))) }, // GMT time
+        { "execId",         kip(execution.execId) },
+        { "time",           ss.fail() ? kip(execution.time) : kts(mktime(&time)) }, // GMT time
         { "acctNumber",     kis(execution.acctNumber) },
         { "exchange",       kis(execution.exchange) },
         { "side",           kis(execution.side) },
         { "shares",         ki(execution.shares) },
         { "price",          kf(execution.price) },
         { "permId",         ki(execution.permId) },
-        { "clientId",       kj(execution.clientId) },
+        { "clientId",       kh(execution.clientId) },
         { "orderId",        kj(execution.orderId) },
         { "liquidation",    ki(execution.liquidation) },
         { "cumQty",         ki(execution.cumQty) },
@@ -163,7 +275,7 @@ K IBClient::convertCommissionReport(const CommissionReport &report)
     auto dict = createDictionary(std::map<std::string, K> {
         { "commission",             kf(report.commission) },
         { "currency",               kis(report.currency) },
-        { "execId",                 kis(report.execId) },
+        { "execId",                 kip(report.execId) },
         { "realizedPNL",            kf(report.realizedPNL) },
         { "yield",                  kf(report.yield) },
         { "yieldRedemptionDate",    kip(stringFormat("%i", report.yieldRedemptionDate)) }
@@ -191,7 +303,7 @@ K IBClient::convertOrderState(const OrderState &orderState)
         { "maintMargin",    kip(orderState.maintMargin) },
         { "maxCommission",  kf(orderState.maxCommission) },
         { "minCommission",  kf(orderState.minCommission) },
-        { "status",         kip(orderState.status) },
+        { "status",         kis(orderState.status) },
         { "warningText",    kip(orderState.warningText) }
     });
     R dict;
@@ -351,7 +463,7 @@ void IBClient::reqGlobalCancel()
     socket->reqGlobalCancel();
 }
 
-void IBClient::reqHistoricalData(TickerId id, const Contract &contract, const IBString &endDateTime, const IBString &durationStr, const IBString & barSizeSetting, const IBString &whatToShow, int useRTH, int formatDate, const TagValueListSPtr& chartOptions)
+void IBClient::reqHistoricalData(TickerId id, const Contract &contract, const IBString &endDateTime, const IBString &durationStr, const IBString &barSizeSetting, const IBString &whatToShow, int useRTH, int formatDate, const TagValueListSPtr &chartOptions)
 {
     socket->reqHistoricalData(id, contract, endDateTime, durationStr, barSizeSetting, whatToShow, useRTH, formatDate, chartOptions);
 }
@@ -371,12 +483,12 @@ void IBClient::reqMarketDataType(int marketDataType)
     socket->reqMarketDataType(marketDataType);
 }
 
-void IBClient::reqMktData(TickerId id, const Contract &contract, const IBString &genericTicks, bool snapshot, const TagValueListSPtr& mktDataOptions)
+void IBClient::reqMktData(TickerId id, const Contract &contract, const IBString &genericTicks, bool snapshot, const TagValueListSPtr &mktDataOptions)
 {
     socket->reqMktData(id, contract, genericTicks, snapshot, mktDataOptions);
 }
 
-void IBClient::reqMktDepth(TickerId tickerId, const Contract &contract, int numRows, const TagValueListSPtr& mktDepthOptions)
+void IBClient::reqMktDepth(TickerId tickerId, const Contract &contract, int numRows, const TagValueListSPtr &mktDepthOptions)
 {
     socket->reqMktDepth(tickerId, contract, numRows, mktDepthOptions);
 }
@@ -396,7 +508,7 @@ void IBClient::reqPositions()
     socket->reqPositions();
 }
 
-void IBClient::reqRealTimeBars(TickerId id, const Contract &contract, int barSize, const IBString &whatToShow, bool useRTH, const TagValueListSPtr& realTimeBarsOptions)
+void IBClient::reqRealTimeBars(TickerId id, const Contract &contract, int barSize, const IBString &whatToShow, bool useRTH, const TagValueListSPtr &realTimeBarsOptions)
 {
     socket->reqRealTimeBars(id, contract, barSize, whatToShow, useRTH, realTimeBarsOptions);
 }
@@ -406,7 +518,7 @@ void IBClient::reqScannerParameters()
     socket->reqScannerParameters();
 }
 
-void IBClient::reqScannerSubscription(int tickerId, const ScannerSubscription &subscription, const TagValueListSPtr& scannerSubscriptionOptions)
+void IBClient::reqScannerSubscription(int tickerId, const ScannerSubscription &subscription, const TagValueListSPtr &scannerSubscriptionOptions)
 {
     socket->reqScannerSubscription(tickerId, subscription, scannerSubscriptionOptions);
 }
@@ -452,14 +564,14 @@ void IBClient::verifyRequest(const IBString& apiName, const IBString& apiVersion
 
 void IBClient::currentTime(long time)
 {
-    K qtime = kz(zu(time));
+    K qtime = kts(time);
     receiveData("currentTime", qtime);
 }
 
 void IBClient::error(const int id, const int errorCode, const IBString errorString)
 {
     std::string type;
-    
+
     if (1100 <= errorCode && errorCode <= 1300) {
         type = "system";
     } else if (2100 <= errorCode && errorCode <= 2110) {
@@ -467,15 +579,15 @@ void IBClient::error(const int id, const int errorCode, const IBString errorStri
     } else {
         type = "error";
     }
-    
+
     receiveData(type.c_str(), knk(3, kj(id), kj(errorCode), kip(errorString)));
-    
+
     // "Connectivity between IB and TWS has been lost"
     if (id == -1 && errorCode == 1100) {
         disconnect();
         receiveData("disconnect", identity());
     }
-    
+
     // Exception caught while reading socket - Connection reset by peer
     if (id == -1 && errorCode == 509) {
         O("Connection reset by peer\n");
@@ -490,13 +602,13 @@ void IBClient::nextValidId(OrderId orderId)
 
 void IBClient::tickPrice(TickerId tickerId, TickType field, double price, int canAutoExecute)
 {
-    
+
     receiveData("tickPrice", knk(4, kj(tickerId), ki(field), kf(price), kb(canAutoExecute)));
 }
 
 void IBClient::tickSize(TickerId tickerId, TickType field, int size)
 {
-    receiveData("tickSize", knk(3, kj(tickerId), ki(field), ki(size)));
+    receiveData("tickSize", knk(3, kj(tickerId), ki(field), kj(size)));
 }
 
 void IBClient::tickOptionComputation(TickerId tickerId, TickType tickType, double impliedVol, double delta, double optPrice, double pvDividend, double gamma, double vega, double theta, double undPrice)
@@ -545,15 +657,15 @@ void IBClient::tickEFP(TickerId tickerId, TickType tickType, double basisPoints,
 void IBClient::orderStatus(OrderId orderId, const IBString &status, int filled, int remaining, double avgFillPrice, int permId, int parentId, double lastFillPrice, int clientId, const IBString &whyHeld)
 {
     auto dict = createDictionary(std::map<std::string, K> {
-        { "id",                 ki(orderId) },
-        { "status",             kip(status) },
+        { "orderId",            kj(orderId) },
+        { "status",             kis(status) },
         { "filled",             ki(filled) },
         { "remaining",          ki(remaining) },
         { "avgFillPrice",       kf(avgFillPrice) },
         { "permId",             ki(permId) },
-        { "parentId",           ki(parentId) },
+        { "parentId",           kj(parentId) },
         { "lastFilledPrice",    kf(lastFillPrice) },
-        { "clientId",           ki(clientId) },
+        { "clientId",           kh(clientId) },
         { "whyHeld",            kip(whyHeld) }
     });
     receiveData("orderStatus", dict);
@@ -567,7 +679,7 @@ void IBClient::connectionClosed()
 void IBClient::updateAccountValue(const IBString &key, const IBString &val, const IBString &currency, const IBString &accountName)
 {
     receiveData("updateAccountValue", knk(4,
-                                          kip(key),
+                                          kis(key),
                                           kip(val),
                                           kis(currency),
                                           kis(accountName) ));
@@ -582,13 +694,13 @@ void IBClient::updatePortfolio(const Contract &contract, int position, double ma
 {
     auto dict = createDictionary(std::map<std::string, K> {
         { "contract",       convertContract(contract) },
-        { "position",       ki(position) },
+        { "position",       kj(position) },
         { "marketPrice",    kf(marketPrice) },
         { "marketValue",    kf(marketValue) },
         { "averageCost",    kf(averageCost) },
         { "unrealizedPNL",  kf(unrealizedPNL) },
         { "realizedPNL",    kf(realizedPNL) },
-        { "accountName",    kip(accountName) }
+        { "accountName",    kis(accountName) }
     });
     receiveData("updatePortfolio", dict);
 }
@@ -602,7 +714,7 @@ void IBClient::updateMktDepth(TickerId id, int position, int operation, int side
 {
     receiveData("updateMktDepth", knk(6,
                                       kj(id),
-                                      ki(position),
+                                      kj(position),
                                       ki(operation),
                                       ki(side),
                                       kf(price),
@@ -613,19 +725,19 @@ void IBClient::updateMktDepthL2(TickerId id, int position, IBString marketMaker,
 {
     receiveData("updateMktDepthL2", knk(7,
                                         kj(id),
-                                        ki(position),
+                                        kj(position),
                                         kis(marketMaker),
                                         ki(operation),
                                         ki(side),
                                         kf(price),
-                                        ki(size)));
+                                        kj(size)));
 }
 
 void IBClient::realtimeBar(TickerId reqId, long time, double open, double high, double low, double close, long volume, double wap, int count)
 {
     auto dict = createDictionary(std::map<std::string, K> {
         { "reqId",  kj(reqId) },
-        { "time",   kz(zu(time)) },
+        { "time",   kts(time) },
         { "open",   kf(open) },
         { "high",   kf(high) },
         { "low",    kf(low) },
@@ -642,7 +754,7 @@ void IBClient::position(const IBString &account, const Contract &contract, int p
     receiveData("position", knk(4,
                                 kis(account),
                                 convertContract(contract),
-                                ki(position),
+                                kj(position),
                                 kf(avgCost)));
 }
 
@@ -696,14 +808,15 @@ void IBClient::tickSnapshotEnd(int reqId)
 
 void IBClient::accountDownloadEnd(const IBString &accountName)
 {
-    receiveData("accountDownloadEnd", kip(accountName));
+    receiveData("accountDownloadEnd", kis(accountName));
 }
 
 void IBClient::openOrder(OrderId orderId, const Contract &contract, const Order &order, const OrderState &orderState)
 {
-    receiveData("openOrder", knk(3,
+    receiveData("openOrder", knk(4,
                                  kj(orderId),
                                  convertContract(contract),
+                                 convertOrder(order),
                                  convertOrderState(orderState)));
 }
 
@@ -726,7 +839,7 @@ void IBClient::historicalData(TickerId reqId, const IBString &date, double open,
         { "high",   kf(high) },
         { "low",    kf(low) },
         { "close",  kf(close) },
-        { "volume", ki(volume) },
+        { "volume", kj(volume) },
         { "barCount", ki(barCount) },
         { "WAP",    kf(WAP) },
         { "hasGaps", kb(hasGaps != 0) }
