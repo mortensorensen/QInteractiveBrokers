@@ -7,6 +7,7 @@
 #include "Order.h"
 #include "Execution.h"
 #include "ScannerSubscription.h"
+#include <functional>
 
 extern "C"
 {
